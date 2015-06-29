@@ -22,10 +22,11 @@ describe EbayTrading do
     end
 
 
-    context 'when setting application keys' do
-      let(:dev_id)  { SecureRandom.uuid }
-      let(:app_id)  { SecureRandom.uuid }
-      let(:cert_id) { SecureRandom.uuid }
+    context 'when setting application keys from environmental variables' do
+
+      let(:dev_id)  { ENV['EBAY_API_DEV_ID']  }
+      let(:app_id)  { ENV['EBAY_API_APP_ID']  }
+      let(:cert_id) { ENV['EBAY_API_CERT_ID'] }
 
       before do
         EbayTrading.configure do |config|
