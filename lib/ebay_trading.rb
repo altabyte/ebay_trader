@@ -1,5 +1,15 @@
-require "ebay_trading/version"
+require 'ebay_trading/version'
 
 module EbayTrading
-  # Your code goes here...
+
+  class << self
+
+    def configuration
+      @configuration ||= Configuration.new
+    end
+
+    def configure
+      yield configuration
+    end
+  end
 end
