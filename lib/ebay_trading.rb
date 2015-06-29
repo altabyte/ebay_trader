@@ -1,4 +1,5 @@
 require 'ebay_trading/version'
+require 'ebay_trading/configuration'
 
 module EbayTrading
 

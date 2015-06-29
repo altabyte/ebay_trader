@@ -1,8 +1,4 @@
 require 'spec_helper'
-require 'securerandom'
-
-require 'ebay_trading/configuration'
-require 'ebay_trading/ebay_trading_error'
 
 describe EbayTrading do
 
