@@ -9,8 +9,11 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Rob Graham']
   spec.email         = ['altabyte@gmail.com']
 
-  spec.summary       = %q{eBay API tools and utilities}
-  spec.description   = %q{A suite of classes and tools for eBay API access.}
+  spec.summary       = %q{Interact with eBay's Trading API using Ruby}
+  spec.description   = <<-DESC
+    Using the magic of metaprogramming this gem allows you to construct eBay Trading API requests
+    with an intuitive DSL.
+    DESC
   spec.homepage      = 'http://www.altabyte.com'
   spec.license       = 'MIT'
 
@@ -32,4 +35,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rspec'
 
   spec.add_runtime_dependency 'activesupport',  '~> 4.0'
+  spec.add_runtime_dependency 'ox', '~> 2.2'
 end

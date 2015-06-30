@@ -1,4 +1,5 @@
 require 'net/http'
+require 'ox'
 require 'rexml/document'
 require 'securerandom'
 
@@ -26,6 +27,8 @@ module EbayTrading
       @auth_token = auth_token.freeze
       @ebay_site_id = 3
       @xml_tab_width = (args[:xml_tab_width] || 0).to_i
+
+      @xml_response = ''
 
       @message_id = nil
       if args.key?(:message_id)
@@ -63,9 +66,13 @@ module EbayTrading
 
       response = http.start { |http| http.request(post) }
 
-      response_body = REXML::Document.new(response.body)
-      @xml_response = ''
-      response_body.write(@xml_response, xml_tab_width)
+      if defined? Ox
+        response_body = Ox.parse(response.body)
+        @xml_response = Ox.dump(response_body, indent: xml_tab_width)
+      else
+        response_body = REXML::Document.new(response.body)
+        response_body.write(@xml_response, xml_tab_width)
+      end
     end
 
 
