@@ -21,6 +21,7 @@ module EbayTrading
     attr_reader :xml_tab_width
     attr_reader :xml_request
     attr_reader :xml_response
+    attr_reader :http_response_code
 
     def initialize(call_name, auth_token, args = {}, &block)
       @call_name  = call_name.freeze
@@ -66,12 +67,18 @@ module EbayTrading
 
       response = http.start { |http| http.request(post) }
 
+      @http_response_code = response.code.freeze
+
+      # If the call was successful it should have a response code starting with '2'
+      # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
+      raise EbayTradingError, "HTTP Response Code: #{http_response_code}" if http_response_code[0] != '2'
+
       if defined? Ox
-        response_body = Ox.parse(response.body)
-        @xml_response = Ox.dump(response_body, indent: xml_tab_width)
+        ox_doc = Ox.parse(response.body)
+        @xml_response = Ox.dump(ox_doc, indent: xml_tab_width)
       else
-        response_body = REXML::Document.new(response.body)
-        response_body.write(@xml_response, xml_tab_width)
+        rexml_doc = REXML::Document.new(response.body)
+        rexml_doc.write(@xml_response, xml_tab_width)
       end
     end
 
