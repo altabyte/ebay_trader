@@ -73,13 +73,21 @@ module EbayTrading
       # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
       raise EbayTradingError, "HTTP Response Code: #{http_response_code}" if http_response_code[0] != '2'
 
+      @xml_response = response.body
+    end
+
+    # Get a String representation of the response XML with indentation.
+    # @return [String] the response XML.
+    def to_s(indent = xml_tab_width)
+      xml = ''
       if defined? Ox
-        ox_doc = Ox.parse(response.body)
-        @xml_response = Ox.dump(ox_doc, indent: xml_tab_width)
+        ox_doc = Ox.parse(xml_response)
+        xml = Ox.dump(ox_doc, indent: indent)
       else
-        rexml_doc = REXML::Document.new(response.body)
-        rexml_doc.write(@xml_response, xml_tab_width)
+        rexml_doc = REXML::Document.new(xml_response)
+        rexml_doc.write(xml, indent)
       end
+      xml
     end
 
 
