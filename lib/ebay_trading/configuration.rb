@@ -1,17 +1,26 @@
 module EbayTrading
   class Configuration
 
-    # https://ebaydts.com/eBayKBDetails?KBid=429
+    # URL for eBay's Trading API *Production* environment.
+    # @see https://ebaydts.com/eBayKBDetails?KBid=429
     URI_PRODUCTION = 'https://api.ebay.com/ws/api.dll'
-    URI_SANDBOX    = 'https://api.sandbox.ebay.com/ws/api.dll'
 
+    # URL for eBay's Trading API *Sandbox* environment.
+    # @see https://ebaydts.com/eBayKBDetails?KBid=429
+    URI_SANDBOX = 'https://api.sandbox.ebay.com/ws/api.dll'
+
+    # @return [String] Application keys Developer ID.
     attr_reader :dev_id
+
+    # @return [String] Application keys App ID.
     attr_reader :app_id
+
+    # @return [String] Application keys Certificate ID.
     attr_reader :cert_id
 
     # @return [Fixnum] The default eBay site ID to use in API requests, default is 0.
     # This can be overridden by including an ebay_site_id value in the list of
-    # arguments to {EbayTrading::Request.initialize}.
+    # arguments to {EbayTrading::Request#initialize}.
     # @see https://developer.ebay.com/DevZone/merchandising/docs/Concepts/SiteIDToGlobalID.html
     attr_accessor :ebay_site_id
 
@@ -31,11 +40,14 @@ module EbayTrading
       @ebay_site_id = 0
     end
 
-    # Set the eBay environment to either :sandbox or :production
-    # @param [Symbol] :sandbox or :production
+    # Set the eBay environment to either *:sandbox* or *:production*.
+    # If the value of +env+ is not recognized :sandbox will be assumed.
+    # @param [Symbol] env :sandbox or :production
+    # @return [Symbol] :sandbox or :production
     def environment=(env)
       @environment = (env.to_s.downcase.strip == 'production') ? :production : :sandbox
       @uri = URI.parse(production? ? URI_PRODUCTION : URI_SANDBOX)
+      @environment
     end
 
     # Determine if this app is targeting eBay's production environment.
@@ -50,7 +62,7 @@ module EbayTrading
       !production?
     end
 
-    # Determine if all application keys have been set.
+    # Determine if all {#dev_id}, {#app_id} and {#cert_id} have all been set.
     # @return [Boolean] +true+ if dev_id, app_id and cert_id have been defined.
     def has_keys_set?
       !(dev_id.nil? || app_id.nil? || cert_id.nil?)
@@ -81,10 +93,10 @@ module EbayTrading
     #---------------------------------------------------------------------------
     private
 
-    # Validate the given DevID, AppID or CertID.
+    # Validate the given {#dev_id}, {#app_id} or {#cert_id}.
     # These are almost like GUID/UUID values with the exception that the first
     # block of 8 digits of AppID can be any letters.
-    # @return [Boolean] true if the
+    # @return [Boolean] +true+ if the ID has the correct format.
     #
     def application_key_valid?(id)
       id =~ /[A-Z0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12}/i
