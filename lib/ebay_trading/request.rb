@@ -5,7 +5,6 @@ require 'securerandom'
 require 'YAML'
 
 require 'ebay_trading'
-require 'ebay_trading/ebay_trading_error'
 require 'ebay_trading/helpers/sax_handler'
 require 'ebay_trading/helpers/xml_builder'
 

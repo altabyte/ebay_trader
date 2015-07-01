@@ -2,7 +2,6 @@ require 'securerandom'
 
 require 'ebay_trading'
 require 'ebay_trading/configuration'
-require 'ebay_trading/ebay_trading_error'
 
 include EbayTrading
 

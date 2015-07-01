@@ -3,6 +3,8 @@ require 'ebay_trading/configuration'
 
 module EbayTrading
 
+  class EbayTradingError < RuntimeError; end
+
   class << self
 
     def configuration
