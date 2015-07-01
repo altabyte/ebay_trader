@@ -12,6 +12,7 @@ module EbayTrading
 
   class Request
 
+    # eBay Trading API XML Namespace
     XMLNS = 'urn:ebay:apis:eBLBaseComponents'
 
     attr_reader :call_name, :auth_token
@@ -20,12 +21,31 @@ module EbayTrading
     attr_reader :xml_tab_width
     attr_reader :xml_request
     attr_reader :xml_response
+    attr_reader :http_timeout
     attr_reader :http_response_code
 
+    # Construct a new eBay Trading API call.
+    # @param [String] call_name the name of the API call, for example 'GeteBayOfficialTime'.
+    # @param [String] auth_token the eBay Auth Token for the user submitting this request.
+    # @param [Hash] args optional configuration values for this request.
+    # @option args [Fixnum] :ebay_site_id Override the default eBay site ID in {Configuration#ebay_site_id}
+    # @option args [String] :response_xml Provide the actual XML response here
+    #                       if a locally cached response is to be interpreted,
+    #                       rather than submitting the request to eBay API.
+    # @option args [Fixnum] :http_timeout Override the default value of {Configuration#http_timeout}.
+    #                       This may be necessary for one-off calls such as UploadSiteHostedPictures
+    #                       which can take 60 seconds or more.
+    # @option args [Fixnum] :xml_tab_width the number of spaces to indent child elements in the generated XML.
+    #                       The default is 0, meaning the XML is a single line string, but it's
+    #                       nice to have the option of pretty-printing the XML for debugging.
+    # @raise [RequestError] if the API call fails.
+    #
     def initialize(call_name, auth_token, args = {}, &block)
       @call_name  = call_name.freeze
       @auth_token = auth_token.freeze
+
       @ebay_site_id = (args[:ebay_site_id] || EbayTrading.configuration.ebay_site_id).to_i
+      @http_timeout = (args[:http_timeout] || EbayTrading.configuration.http_timeout).to_f
       @xml_tab_width = (args[:xml_tab_width] || 0).to_i
 
       @xml_response = ''
@@ -56,7 +76,7 @@ module EbayTrading
       uri = EbayTrading.configuration.uri
 
       http = Net::HTTP.new(uri.host, uri.port)
-      http.read_timeout = 30
+      http.read_timeout = http_timeout
 
       if uri.port == 443
         http.use_ssl = true
@@ -66,7 +86,11 @@ module EbayTrading
       post = Net::HTTP::Post.new(uri.path, headers)
       post.body = xml_request
 
-      response = http.start { |http| http.request(post) }
+      begin
+        response = http.start { |http| http.request(post) }
+      rescue Net::ReadTimeout
+        raise EbayTradingTimeoutError, "Failed to complete #{call_name} in #{http_timeout} seconds"
+      end
 
       @http_response_code = response.code.freeze
 

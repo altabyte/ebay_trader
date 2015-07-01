@@ -18,7 +18,8 @@ describe Request do
   let(:auth_token) { @auth_token }
 
 
-  describe 'Basic no args request' do
+  describe 'GeteBayOfficialTime' do
+
     let(:call_name) { 'GeteBayOfficialTime' }
 
     it 'creates XML' do
@@ -28,6 +29,19 @@ describe Request do
       puts "\n#{request.to_s}\n"
     end
   end
+
+
+  describe 'HTTP Timeout too short to get response' do
+
+    let(:impossible_timeout) { 0.1 } # seconds
+
+    it 'raises a EbayTradingTimeoutError' do
+      expect { Request.new('GeteBayOfficialTime', auth_token, http_timeout: impossible_timeout) }.to raise_error EbayTradingTimeoutError
+      expect { Request.new('GeteBayOfficialTime', auth_token, http_timeout: impossible_timeout) }.to raise_error EbayTradingError
+      expect { Request.new('GeteBayOfficialTime', auth_token, http_timeout: impossible_timeout + 10) }.not_to raise_error
+    end
+  end
+
 
   describe 'GetCategories' do
 
@@ -43,7 +57,7 @@ describe Request do
 
     subject(:request) { @request }
 
-    it 'does something' do
+    it 'Prints the input and output XML' do
       puts "\n#{request.xml_request}\n"
       puts "\n#{request.to_s}\n"
     end

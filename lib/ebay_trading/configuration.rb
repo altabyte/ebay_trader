@@ -18,6 +18,10 @@ module EbayTrading
     # @return [String] Application keys Certificate ID.
     attr_reader :cert_id
 
+    # @return [URI] Get the URI for eBay API requests, which will be different for
+    # sandbox and production environments.
+    attr_reader :uri
+
     # @return [Fixnum] The default eBay site ID to use in API requests, default is 0.
     # This can be overridden by including an ebay_site_id value in the list of
     # arguments to {EbayTrading::Request#initialize}.
@@ -28,9 +32,8 @@ module EbayTrading
     # @see http://developer.ebay.com/DevZone/XML/docs/ReleaseNotes.html
     attr_reader :ebay_api_version
 
-    # @return [URI] Get the URI for eBay API requests, which will be different for
-    # sandbox and production environments.
-    attr_reader :uri
+    # @return [Fixnum] the number of seconds before the HTTP session times out.
+    attr_reader :http_timeout
 
     def initialize
       self.environment = :sandbox
@@ -42,7 +45,8 @@ module EbayTrading
       @cert_id = nil
 
       @ebay_site_id = 0
-      @ebay_api_version = 927  # 2015-Jun-12
+      @ebay_api_version = 927   # 2015-Jun-12
+      @http_timeout = 30        # seconds
     end
 
     # Set the eBay environment to either *:sandbox* or *:production*.
