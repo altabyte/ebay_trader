@@ -12,8 +12,6 @@ module EbayTrading
 
   class Request
 
-    API_VERSION = 927
-
     XMLNS = 'urn:ebay:apis:eBLBaseComponents'
 
     attr_reader :call_name, :auth_token
@@ -105,7 +103,7 @@ module EbayTrading
     #
     def headers
       headers = {
-          'X-EBAY-API-COMPATIBILITY-LEVEL' => "#{API_VERSION}",
+          'X-EBAY-API-COMPATIBILITY-LEVEL' => "#{EbayTrading.configuration.ebay_api_version}",
           'X-EBAY-API-SITEID' => "#{ebay_site_id}",
           'X-EBAY-API-CALL-NAME' => call_name,
           'Content-Type' => 'text/xml'

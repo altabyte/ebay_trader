@@ -24,6 +24,10 @@ module EbayTrading
     # @see https://developer.ebay.com/DevZone/merchandising/docs/Concepts/SiteIDToGlobalID.html
     attr_accessor :ebay_site_id
 
+    # @return [Fixnum] the eBay Trading API version.
+    # @see http://developer.ebay.com/DevZone/XML/docs/ReleaseNotes.html
+    attr_reader :ebay_api_version
+
     # @return [URI] Get the URI for eBay API requests, which will be different for
     # sandbox and production environments.
     attr_reader :uri
@@ -38,6 +42,7 @@ module EbayTrading
       @cert_id = nil
 
       @ebay_site_id = 0
+      @ebay_api_version = 927  # 2015-Jun-12
     end
 
     # Set the eBay environment to either *:sandbox* or *:production*.
