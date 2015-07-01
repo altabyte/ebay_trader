@@ -2,9 +2,11 @@ require 'net/http'
 require 'ox'
 require 'rexml/document'
 require 'securerandom'
+require 'YAML'
 
 require 'ebay_trading'
 require 'ebay_trading/ebay_trading_error'
+require 'ebay_trading/helpers/sax_handler'
 require 'ebay_trading/helpers/xml_builder'
 
 module EbayTrading
@@ -26,7 +28,7 @@ module EbayTrading
     def initialize(call_name, auth_token, args = {}, &block)
       @call_name  = call_name.freeze
       @auth_token = auth_token.freeze
-      @ebay_site_id = 3
+      @ebay_site_id = 0
       @xml_tab_width = (args[:xml_tab_width] || 0).to_i
 
       @xml_response = ''
@@ -41,11 +43,13 @@ module EbayTrading
         RequesterCredentials do
           eBayAuthToken auth_token.to_s
         end
-        xml_builder.instance_eval(&block) if block_given?
+        instance_eval(&block) if block_given?
         MessageID message_id unless message_id.nil?
       end
 
       post
+
+      parse(to_s)
     end
 
     # Post the xml_request to eBay and record the xml_response.
@@ -119,6 +123,18 @@ module EbayTrading
         headers.merge!({'X-EBAY-API-CERT-NAME' => EbayTrading.configuration.cert_id})
       end
       headers
+    end
+
+    def parse(xml)
+      xml ||= ''
+      xml = StringIO.new(xml) unless xml.respond_to?(:read)
+
+      handler = SaxHandler.new
+      Ox.sax_parse(handler, xml, convert_special: true)
+      hash = handler.to_hash
+
+      require 'JSON'
+      puts JSON.pretty_generate(JSON.parse(hash.to_json))
     end
   end
 end
