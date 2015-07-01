@@ -9,7 +9,14 @@ module EbayTrading
     attr_reader :app_id
     attr_reader :cert_id
 
-    # Get the URI for eBay API requests, which will be different for sandbox and production environments.
+    # @return [Fixnum] The default eBay site ID to use in API requests, default is 0.
+    # This can be overridden by including an ebay_site_id value in the list of
+    # arguments to {EbayTrading::Request.initialize}.
+    # @see https://developer.ebay.com/DevZone/merchandising/docs/Concepts/SiteIDToGlobalID.html
+    attr_accessor :ebay_site_id
+
+    # @return [URI] Get the URI for eBay API requests, which will be different for
+    # sandbox and production environments.
     attr_reader :uri
 
     def initialize
@@ -20,6 +27,8 @@ module EbayTrading
       @dev_id  = nil
       @app_id  = nil
       @cert_id = nil
+
+      @ebay_site_id = 0
     end
 
     # Set the eBay environment to either :sandbox or :production

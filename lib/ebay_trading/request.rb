@@ -27,7 +27,7 @@ module EbayTrading
     def initialize(call_name, auth_token, args = {}, &block)
       @call_name  = call_name.freeze
       @auth_token = auth_token.freeze
-      @ebay_site_id = 0
+      @ebay_site_id = (args[:ebay_site_id] || EbayTrading.configuration.ebay_site_id).to_i
       @xml_tab_width = (args[:xml_tab_width] || 0).to_i
 
       @xml_response = ''

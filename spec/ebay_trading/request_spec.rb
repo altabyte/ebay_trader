@@ -9,13 +9,13 @@ describe Request do
 
     EbayTrading.configure do |config|
       config.environment = :sandbox
+      config.ebay_site_id = 0 # ebay.com
       config.dev_id  = ENV['EBAY_API_DEV_ID_SANDBOX']
       config.app_id  = ENV['EBAY_API_APP_ID_SANDBOX']
       config.cert_id = ENV['EBAY_API_CERT_ID_SANDBOX']
     end
   end
   let(:auth_token) { @auth_token }
-
 
 
   describe 'Basic no args request' do

@@ -9,6 +9,13 @@ describe Configuration do
 
   subject(:config) { Configuration.new }
 
+  describe 'Default values' do
+
+    it { is_expected.not_to have_keys_set }
+    it { expect(config.ebay_site_id).to eq(0) }
+
+  end
+
   context 'when specifying the environment' do
 
     it { is_expected.to respond_to 'environment=' }
