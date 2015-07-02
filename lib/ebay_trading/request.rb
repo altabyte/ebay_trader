@@ -25,20 +25,42 @@ module EbayTrading
     attr_reader :http_response_code
 
     # Construct a new eBay Trading API call.
+    #
     # @param [String] call_name the name of the API call, for example 'GeteBayOfficialTime'.
+    #
     # @param [String] auth_token the eBay Auth Token for the user submitting this request.
+    #
     # @param [Hash] args optional configuration values for this request.
+    #
     # @option args [Fixnum] :ebay_site_id Override the default eBay site ID in {Configuration#ebay_site_id}
-    # @option args [String] :response_xml Provide the actual XML response here
-    #                       if a locally cached response is to be interpreted,
-    #                       rather than submitting the request to eBay API.
+    #
     # @option args [Fixnum] :http_timeout Override the default value of {Configuration#http_timeout}.
-    #                       This may be necessary for one-off calls such as UploadSiteHostedPictures
-    #                       which can take 60 seconds or more.
+    #
+    #                       This may be necessary for one-off calls such as
+    #                       {http://developer.ebay.com/DevZone/XML/docs/Reference/ebay/UploadSiteHostedPictures.html UploadSiteHostedPictures}
+    #                       which can take significantly longer.
+    #
+    # @option args [String] :xml_response inject a pre-prepared XML response.
+    #
+    #                       If an XML response is given here the request will not actually be sent to eBay.
+    #                       Using this feature can dramatically speed up testing and also ensure you stay
+    #                       within eBay's 5,000 requests per day throttling rate.
+    #
+    #                       It is also a useful feature for parsing locally cached/archived XML files.
+    #
     # @option args [Fixnum] :xml_tab_width the number of spaces to indent child elements in the generated XML.
     #                       The default is 0, meaning the XML is a single line string, but it's
     #                       nice to have the option of pretty-printing the XML for debugging.
-    # @raise [RequestError] if the API call fails.
+    #
+    # @yield [xml_builder] a block describing the XML DOM.
+    #
+    # @yieldparam name [XMLBuilder] an XML builder node allowing customization of the request specific details.
+    #
+    # @yieldreturn [XMLBuilder] the same XML builder originally provided by the block.
+    #
+    # @raise [EbayTradingError] if the API call fails.
+    #
+    # @raise [EbayTradingTimeoutError] if the HTTP call times out.
     #
     def initialize(call_name, auth_token, args = {}, &block)
       @call_name  = call_name.freeze
@@ -48,7 +70,7 @@ module EbayTrading
       @http_timeout = (args[:http_timeout] || EbayTrading.configuration.http_timeout).to_f
       @xml_tab_width = (args[:xml_tab_width] || 0).to_i
 
-      @xml_response = ''
+      @xml_response = args[:xml_response] || ''
 
       @message_id = nil
       if args.key?(:message_id)
@@ -64,13 +86,38 @@ module EbayTrading
         MessageID message_id unless message_id.nil?
       end
 
-      post
+      @http_response_code = 200
+      submit if xml_response.blank?
 
-      parse(to_s)
+      parse(xml_response)
     end
 
+    # Get a String representation of the response XML with indentation.
+    # @return [String] the response XML.
+    def to_s(indent = xml_tab_width)
+      xml = ''
+      if defined? Ox
+        ox_doc = Ox.parse(xml_response)
+        xml = Ox.dump(ox_doc, indent: indent)
+      else
+        rexml_doc = REXML::Document.new(xml_response)
+        rexml_doc.write(xml, indent)
+      end
+      xml
+    end
+
+    # Get a String representation of the XML data hash in JSON notation.
+    # @return [String] pretty printed JSON.
+    def to_json_s
+      require 'JSON' unless defined? JSON
+      puts JSON.pretty_generate(JSON.parse(@data_hash.to_json))
+    end
+
+    #-------------------------------------------------------------------------
+    private
+
     # Post the xml_request to eBay and record the xml_response.
-    def post
+    def submit
       raise EbayTradingError, 'Cannot post an eBay API request before application keys have been set' unless EbayTrading.configuration.has_keys_set?
 
       uri = EbayTrading.configuration.uri
@@ -92,32 +139,23 @@ module EbayTrading
         raise EbayTradingTimeoutError, "Failed to complete #{call_name} in #{http_timeout} seconds"
       end
 
-      @http_response_code = response.code.freeze
+      @http_response_code = response.code.to_i.freeze
 
       # If the call was successful it should have a response code starting with '2'
       # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
-      raise EbayTradingError, "HTTP Response Code: #{http_response_code}" if http_response_code[0] != '2'
+      raise EbayTradingError, "HTTP Response Code: #{http_response_code}" unless http_response_code.between?(200, 299)
 
       @xml_response = response.body
     end
 
-    # Get a String representation of the response XML with indentation.
-    # @return [String] the response XML.
-    def to_s(indent = xml_tab_width)
-      xml = ''
-      if defined? Ox
-        ox_doc = Ox.parse(xml_response)
-        xml = Ox.dump(ox_doc, indent: indent)
-      else
-        rexml_doc = REXML::Document.new(xml_response)
-        rexml_doc.write(xml, indent)
-      end
-      xml
+    def parse(xml)
+      xml ||= ''
+      xml = StringIO.new(xml) unless xml.respond_to?(:read)
+
+      handler = SaxHandler.new
+      Ox.sax_parse(handler, xml, convert_special: true)
+      @data_hash = handler.to_hash
     end
-
-
-    #-------------------------------------------------------------------------
-    private
 
     #
     # Get a hash of the default headers to be submitted to eBay API via httparty.
@@ -144,18 +182,6 @@ module EbayTrading
         headers.merge!({'X-EBAY-API-CERT-NAME' => EbayTrading.configuration.cert_id})
       end
       headers
-    end
-
-    def parse(xml)
-      xml ||= ''
-      xml = StringIO.new(xml) unless xml.respond_to?(:read)
-
-      handler = SaxHandler.new
-      Ox.sax_parse(handler, xml, convert_special: true)
-      hash = handler.to_hash
-
-      require 'JSON'
-      puts JSON.pretty_generate(JSON.parse(hash.to_json))
     end
   end
 end

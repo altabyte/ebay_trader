@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Saved: 2015-07-02
+
+  Toys & Hobbies -> Fast Food & Cereal Premiums
+
+  This is a nice category to work with as it is short and has several nested levels.
+
+      #  Fast Food & Cereal Premiums                  19077
+      #     Cereal                                    19078
+      #        Pre-1970                               19080
+      #        1970-Now                               19079
+      #     Fast Food                                   767
+      #     Other Fast Food & Cereal Toys              1196
+-->
+<GetCategoriesResponse xmlns="urn:ebay:apis:eBLBaseComponents">
+  <Timestamp>2015-07-02T10:44:10.428Z</Timestamp>
+  <Ack>Success</Ack>
+  <Version>921</Version>
+  <Build>E921_CORE_API_17506731_R1</Build>
+  <CategoryArray>
+    <Category>
+      <BestOfferEnabled>true</BestOfferEnabled>
+      <AutoPayEnabled>true</AutoPayEnabled>
+      <CategoryID>19077</CategoryID>
+      <CategoryLevel>2</CategoryLevel>
+      <CategoryName>Fast Food &amp; Cereal Premiums</CategoryName>
+      <CategoryParentID>220</CategoryParentID>
+    </Category>
+    <Category>
+      <BestOfferEnabled>true</BestOfferEnabled>
+      <AutoPayEnabled>true</AutoPayEnabled>
+      <CategoryID>19078</CategoryID>
+      <CategoryLevel>3</CategoryLevel>
+      <CategoryName>Cereal</CategoryName>
+      <CategoryParentID>19077</CategoryParentID>
+    </Category>
+    <Category>
+      <BestOfferEnabled>true</BestOfferEnabled>
+      <AutoPayEnabled>true</AutoPayEnabled>
+      <CategoryID>19080</CategoryID>
+      <CategoryLevel>4</CategoryLevel>
+      <CategoryName>Pre-1970</CategoryName>
+      <CategoryParentID>19078</CategoryParentID>
+      <LeafCategory>true</LeafCategory>
+    </Category>
+    <Category>
+      <BestOfferEnabled>true</BestOfferEnabled>
+      <AutoPayEnabled>true</AutoPayEnabled>
+      <CategoryID>19079</CategoryID>
+      <CategoryLevel>4</CategoryLevel>
+      <CategoryName>1970-Now</CategoryName>
+      <CategoryParentID>19078</CategoryParentID>
+      <LeafCategory>true</LeafCategory>
+    </Category>
+    <Category>
+      <BestOfferEnabled>true</BestOfferEnabled>
+      <AutoPayEnabled>true</AutoPayEnabled>
+      <CategoryID>767</CategoryID>
+      <CategoryLevel>3</CategoryLevel>
+      <CategoryName>Fast Food</CategoryName>
+      <CategoryParentID>19077</CategoryParentID>
+      <LeafCategory>true</LeafCategory>
+    </Category>
+    <Category>
+      <BestOfferEnabled>true</BestOfferEnabled>
+      <AutoPayEnabled>true</AutoPayEnabled>
+      <CategoryID>1196</CategoryID>
+      <CategoryLevel>3</CategoryLevel>
+      <CategoryName>Other Fast Food &amp; Cereal Toys</CategoryName>
+      <CategoryParentID>19077</CategoryParentID>
+      <LeafCategory>true</LeafCategory>
+    </Category>
+  </CategoryArray>
+  <CategoryCount>6</CategoryCount>
+  <UpdateTime>2015-04-13T17:37:32.000Z</UpdateTime>
+  <CategoryVersion>112</CategoryVersion>
+  <ReservePriceAllowed>true</ReservePriceAllowed>
+  <MinimumReservePrice>0.0</MinimumReservePrice>
+</GetCategoriesResponse>
