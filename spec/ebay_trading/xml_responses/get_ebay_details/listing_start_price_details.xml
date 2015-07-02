@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GeteBayDetailsResponse xmlns="urn:ebay:apis:eBLBaseComponents">
+  <Timestamp>2015-07-02T12:57:07.012Z</Timestamp>
+  <Ack>Success</Ack>
+  <Version>921</Version>
+  <Build>E921_CORE_API_17506731_R1</Build>
+  <ListingStartPriceDetails>
+    <Description>Pricing for the auction-like listings</Description>
+    <ListingType>Chinese</ListingType>
+    <StartPrice currencyID="USD">0.01</StartPrice>
+    <DetailVersion>1</DetailVersion>
+    <UpdateTime>2009-07-01T23:43:58.000Z</UpdateTime>
+    <MinBuyItNowPricePercent>30.0</MinBuyItNowPricePercent>
+  </ListingStartPriceDetails>
+  <ListingStartPriceDetails>
+    <Description>Pricing for multiple item listings</Description>
+    <ListingType>Dutch</ListingType>
+    <StartPrice currencyID="USD">0.99</StartPrice>
+    <DetailVersion>1</DetailVersion>
+    <UpdateTime>2009-07-01T23:43:58.000Z</UpdateTime>
+  </ListingStartPriceDetails>
+  <ListingStartPriceDetails>
+    <Description>Pricing for fixed price listings</Description>
+    <ListingType>FixedPriceItem</ListingType>
+    <StartPrice currencyID="USD">0.99</StartPrice>
+    <DetailVersion>1</DetailVersion>
+    <UpdateTime>2009-07-01T23:43:58.000Z</UpdateTime>
+  </ListingStartPriceDetails>
+  <UpdateTime>2009-07-01T23:43:58.000Z</UpdateTime>
+</GeteBayDetailsResponse>
