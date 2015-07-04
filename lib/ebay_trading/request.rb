@@ -83,6 +83,7 @@ module EbayTrading
 
       @skip_type_casting = args[:skip_type_casting] || []
       @skip_type_casting = @skip_type_casting.split if @skip_type_casting.is_a?(String)
+      @skip_type_casting << "#{call_name}Response"
 
       @message_id = nil
       if args.key?(:message_id)
@@ -101,7 +102,11 @@ module EbayTrading
       @http_response_code = 200
       submit if xml_response.blank?
 
-      parse(xml_response)
+      parsed_hash = parse(xml_response)
+      root_key = parsed_hash.keys.first
+      raise EbayTradingError, "Response '#{root_key}' does not match call name" unless root_key.gsub('_', '').eql?("#{call_name}Response".downcase)
+
+      @response_hash = parsed_hash[root_key]
     end
 
     # Get a String representation of the response XML with indentation.
@@ -166,7 +171,7 @@ module EbayTrading
 
       handler = SaxHandler.new(skip_type_casting: skip_type_casting)
       Ox.sax_parse(handler, xml, convert_special: true)
-      @response_hash = handler.to_hash
+      handler.to_hash
     end
 
     #

@@ -91,12 +91,11 @@ describe Request do
       puts "\n#{request.to_json_s}\n"
     end
 
-    it { expect(response_hash).to have_key(:get_ebay_details_response) }
-    it { expect(response_hash[:get_ebay_details_response]).to have_key(:listing_start_price_details) }
-    it { expect(response_hash[:get_ebay_details_response][:listing_start_price_details]).to be_a(Array) }
-    it { expect(response_hash[:get_ebay_details_response][:listing_start_price_details].first).to be_a(Hash) }
+    it { expect(response_hash).to have_key(:listing_start_price_details) }
+    it { expect(response_hash[:listing_start_price_details]).to be_a(Array) }
+    it { expect(response_hash[:listing_start_price_details].first).to be_a(Hash) }
 
-    let(:details) { response_hash[:get_ebay_details_response][:listing_start_price_details].first }
+    let(:details) { response_hash[:listing_start_price_details].first }
 
     it { expect(details).to be_a Hash }
     it { expect(details).to have_key(:description) }
