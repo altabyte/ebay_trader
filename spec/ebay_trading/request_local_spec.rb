@@ -103,6 +103,9 @@ describe Request do
     it { expect(details[:description]).to be_a(String) }
     it { expect(details).to have_key(:start_price) }
     it { expect(details[:start_price]).to be_a(Float) }
+    it { expect(details).to have_key(:start_price_currency_id) }
+    it { expect(details[:start_price_currency_id]).to be_a(String) }
+    it { expect(details[:start_price_currency_id]).to eq('USD') }
     it { expect(details).to have_key(:update_time) }
     it { expect(details[:update_time]).to be_a(Time) }
 

@@ -60,14 +60,19 @@ module EbayTrading
     end
 
     def cdata(value)
-      key = path.last
+      key = format_key(path.last)
       parent = @stack[-2]
       parent[key] = value
     end
 
     def attr(name, value)
       return if name.to_s.downcase == 'xmlns'
-      append(name, value) unless @stack.empty?
+      last = path.last
+      return if last.nil?
+      name = name[0].upcase + name[1...name.length]
+      key = format_key("#{last}#{name}")
+      parent = @stack[-2]
+      parent[key] = value
     end
 
     def error(message, line, column)
