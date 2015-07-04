@@ -109,6 +109,39 @@ module EbayTrading
       @response_hash = parsed_hash[root_key]
     end
 
+    # Recursively deep search through the {#response_hash} tree and return the
+    # first value matching the given +path+ of node names.
+    # If +path+ cannot be matched the value of +default+ is returned.
+    # @param [Array [String|Symbol]] path an array of the keys defining the path to the node of interest.
+    # @param [Object] default the value to be returned if +path+ cannot be matched.
+    # @return [Object] the first value found in +path+, or +default+.
+    def find(path, default = nil)
+      deep_find(@response_hash, path, default)
+    end
+
+    # Recursively deep search through the given nested +hash+ and return the
+    # first value matching the specified +path+ of node names.
+    # If +path+ cannot be matched the value of +default+ is returned.
+    # @param [Hash] hash the Hash to deep search.
+    # @param [Array [String|Symbol]] path an array of the keys defining the path to the node of interest.
+    # @param [Object] default the value to be returned if +path+ cannot be matched.
+    # @return [Object] the first value found in +path+, or +default+.
+    def deep_find(hash, path, default = nil)
+      return default unless hash && hash.is_a?(Hash)
+      return default unless path
+      @deep_find_mutex = Mutex.new unless @deep_find_mutex
+      @deep_find_mutex.synchronize do
+        path = [path] if path.is_a?(String) || path.is_a?(Symbol)
+        return default unless path.is_a?(Array) && !path.empty?
+        location = hash
+        path.each do |key|
+          return default if location.nil? || !location.key?(key)
+          location = location[key]
+        end
+        return location
+      end
+    end
+
     # Get a String representation of the response XML with indentation.
     # @return [String] the response XML.
     def to_s(indent = xml_tab_width)

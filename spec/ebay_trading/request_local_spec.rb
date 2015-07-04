@@ -92,6 +92,9 @@ describe Request do
     end
 
     it { expect(response_hash).to have_key(:listing_start_price_details) }
+    it { expect(response_hash).to have_key('listing_start_price_details') }
+
+    it { expect(request.find(:listing_start_price_details)).to be_a(Array) }
     it { expect(response_hash[:listing_start_price_details]).to be_a(Array) }
     it { expect(response_hash[:listing_start_price_details].first).to be_a(Hash) }
 
