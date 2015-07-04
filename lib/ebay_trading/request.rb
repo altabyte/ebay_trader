@@ -83,7 +83,6 @@ module EbayTrading
 
       @skip_type_casting = args[:skip_type_casting] || []
       @skip_type_casting = @skip_type_casting.split if @skip_type_casting.is_a?(String)
-      @skip_type_casting << "#{call_name}Response"
 
       @message_id = nil
       if args.key?(:message_id)
@@ -107,6 +106,38 @@ module EbayTrading
       raise EbayTradingError, "Response '#{root_key}' does not match call name" unless root_key.gsub('_', '').eql?("#{call_name}Response".downcase)
 
       @response_hash = parsed_hash[root_key]
+      @response_hash.freeze
+    end
+
+    # Determine if this request has been successful.
+    # This should return the opposite of {#failure?}
+    def success?
+      find(:ack, '').downcase.eql?('success')
+    end
+
+    # Determine if this request has failed.
+    # This should return the opposite of {#success?}
+    def failure?
+      find(:ack, '').downcase.eql?('failure')
+    end
+
+    # Determine if this response has partially failed.
+    # This eBay response is somewhat ambiguous, but generally means the request was
+    # processed by eBay, but warnings were generated.
+    def partial_failure?
+      find(:ack, '').downcase.eql?('partialfailure')
+    end
+
+    # Get the timestamp of the response returned by eBay API.
+    # The timestamp indicates the time when eBay processed the request; it does
+    # not necessarily indicate the current eBay official eBay time.
+    # In particular, calls like
+    # {http://developer.ebay.com/DevZone/XML/docs/Reference/eBay/GetCategories.html GetCategories}
+    # can return a cached response, so the time stamp may not be current.
+    # @return [Time] the response timestamp.
+    #
+    def timestamp
+      find :timestamp
     end
 
     # Recursively deep search through the {#response_hash} tree and return the

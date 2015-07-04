@@ -21,9 +21,12 @@ describe Request do
   end
   let(:auth_token) { @auth_token }
 
-  describe 'Submitting a prepared XML response' do
 
+  describe 'Submitting a prepared XML response to requesting a sub-set of categories' do
+
+    let(:call_name) { 'GetCategories' }
     let(:category_id) { 19077 }  # Toys & Hobbies -> Fast Food & Cereal Premiums
+    let(:number_of_categories) { 6 }
     let(:response_xml) do
       self.file_to_string("#{__dir__}/xml_responses/get_categories/#{category_id}.xml")
     end
@@ -31,7 +34,7 @@ describe Request do
     it { expect(response_xml).not_to be_blank }
 
     subject(:request) do
-      Request.new('GetCategories', @auth_token, xml_response: response_xml, xml_tab_width: 2) do
+      Request.new('GetCategories', @auth_token, xml_response: response_xml) do
         CategorySiteID 0      # eBay USA
         CategoryParent 19077  # Toys & Hobbies -> Fast Food & Cereal Premiums
         DetailLevel 'ReturnAll'
@@ -41,9 +44,33 @@ describe Request do
     end
 
     it { is_expected.not_to be_nil }
+    it { is_expected.to be_success }
+    it { is_expected.not_to be_failure }
+    it { is_expected.not_to be_partial_failure }
     it { expect(request.http_response_code).to eq(200) }
-    it { expect(request.response_hash).not_to be_nil }
+    it { expect(request.http_timeout).to eq(EbayTrading.configuration.http_timeout) }
+    it { expect(request.timestamp).not_to be_nil }
+    it { expect(request.timestamp).to be_a(Time) }
+    it { expect(request.call_name).to eq(call_name) }
+    it { expect(request.ebay_site_id).to eq(EbayTrading.configuration.ebay_site_id) }
     it { expect(request.response_hash).to be_a(Hash) }
+    it { expect(request.skip_type_casting).to be_a(Array) }
+    it { expect(request.skip_type_casting).to be_empty }
+
+    it { expect(request.response_hash).to have_key(:category_array) }
+    it { expect(request.response_hash).to have_key(:category_count) }
+    it { expect(request.find(:category_count)).to eq(number_of_categories) }
+
+    it 'Should find the array of categories' do
+      categories = request.find %w'category_array category'
+      expect(categories).not_to be_nil
+      expect(categories).to be_a(Array)
+      expect(categories.count).to eq(number_of_categories)
+    end
+
+    it 'prints out a JSON report' do
+      puts request.to_json_s
+    end
   end
 
 
@@ -59,7 +86,8 @@ describe Request do
       end
     end
 
-    it { expect(request.http_response_code).to eq(200) }
+    it { is_expected.not_to be_nil }
+    it { is_expected.to be_success }
     it { expect(request.response_hash).not_to be_nil }
     it { expect(request.response_hash).to be_a(Hash) }
 
@@ -90,6 +118,8 @@ describe Request do
       puts "\n#{request.to_s}\n"
       puts "\n#{request.to_json_s}\n"
     end
+
+    it { is_expected.to be_success }
 
     it { expect(response_hash).to have_key(:listing_start_price_details) }
     it { expect(response_hash).to have_key('listing_start_price_details') }
