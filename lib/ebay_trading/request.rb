@@ -18,6 +18,8 @@ module EbayTrading
     attr_reader :call_name, :auth_token
     attr_reader :ebay_site_id
     attr_reader :message_id
+    attr_reader :response_hash
+    attr_reader :skip_type_casting
     attr_reader :xml_tab_width
     attr_reader :xml_request
     attr_reader :xml_response
@@ -39,6 +41,13 @@ module EbayTrading
     #                       This may be necessary for one-off calls such as
     #                       {http://developer.ebay.com/DevZone/XML/docs/Reference/ebay/UploadSiteHostedPictures.html UploadSiteHostedPictures}
     #                       which can take significantly longer.
+    #
+    # @option args [Array [String]] :skip_type_casting An array of the keys for which the values should *not*
+    #                       get automatically type cast.
+    #
+    #                       Take for example the 'BuyerUserID' field. If someone has the username '123456'
+    #                       the auto-type-casting would consider this to be a Fixnum. Adding 'BuyerUserID'
+    #                       to skip_type_casting list will ensure it remains a String.
     #
     # @option args [String] :xml_response inject a pre-prepared XML response.
     #
@@ -71,6 +80,9 @@ module EbayTrading
       @xml_tab_width = (args[:xml_tab_width] || 0).to_i
 
       @xml_response = args[:xml_response] || ''
+
+      @skip_type_casting = args[:skip_type_casting] || []
+      @skip_type_casting = @skip_type_casting.split if @skip_type_casting.is_a?(String)
 
       @message_id = nil
       if args.key?(:message_id)
@@ -110,7 +122,7 @@ module EbayTrading
     # @return [String] pretty printed JSON.
     def to_json_s
       require 'JSON' unless defined? JSON
-      puts JSON.pretty_generate(JSON.parse(@data_hash.to_json))
+      puts JSON.pretty_generate(JSON.parse(@response_hash.to_json))
     end
 
     #-------------------------------------------------------------------------
@@ -152,9 +164,9 @@ module EbayTrading
       xml ||= ''
       xml = StringIO.new(xml) unless xml.respond_to?(:read)
 
-      handler = SaxHandler.new
+      handler = SaxHandler.new(skip_type_casting: skip_type_casting)
       Ox.sax_parse(handler, xml, convert_special: true)
-      @data_hash = handler.to_hash
+      @response_hash = handler.to_hash
     end
 
     #
