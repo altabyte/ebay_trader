@@ -45,6 +45,8 @@ describe Request do
     it { expect(request.xml_tab_width).to eq(@tab_width) }
     it { expect(request.skip_type_casting).to be_a(Array) }
     it { expect(request.skip_type_casting).to be_empty }
+    it { expect(request.known_arrays).to be_a(Array) }
+    it { expect(request.known_arrays).to include('errors') }
 
     it 'should support both symbol and string keys for the response hash' do
       hash = request.response_hash
@@ -112,7 +114,13 @@ describe Request do
       it { expect(request.timestamp).not_to be_nil }
       it { expect(request.timestamp).to be_a(Time) }
 
+      # Ensure that 'Errors' is an array, even though there is only 1 error
+      it { expect(request.find(:errors)).not_to be_nil }
+      it { expect(request.find(:errors)).to be_a(Array) }
+      it { expect(request.find(:errors).count).to eq(1) }
+
       it { puts "\n#{request.to_s}\n" }
+      it { puts "\n#{request.to_json_s}\n" }
     end
 
     describe 'HTTP Timeout too short to get response' do

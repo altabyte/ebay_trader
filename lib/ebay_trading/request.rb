@@ -20,6 +20,7 @@ module EbayTrading
     attr_reader :message_id
     attr_reader :response_hash
     attr_reader :skip_type_casting
+    attr_reader :known_arrays
     attr_reader :xml_tab_width
     attr_reader :xml_request
     attr_reader :xml_response
@@ -48,6 +49,19 @@ module EbayTrading
     #                       Take for example the 'BuyerUserID' field. If someone has the username '123456'
     #                       the auto-type-casting would consider this to be a Fixnum. Adding 'BuyerUserID'
     #                       to skip_type_casting list will ensure it remains a String.
+    #
+    # @option args [Array [String]] :known_arrays a list of the names of elements that are known to have arrays
+    #                       of values. If defined here {#response_hash} will ensure array values in circumstances
+    #                       where there is only a single child element in the response XML.
+    #
+    #                       It is not necessary to use this feature, but doing so can simplify later stage logic
+    #                       as certain fields are guaranteed to be arrays. As there is no concept of arrays in XML
+    #                       it is not otherwise possible to determine if a field should be an array.
+    #
+    #                       An example case is when building a tree of nested categories. Some categories may only have
+    #                       one child category, but adding 'Category' or :category to this list will ensure the
+    #                       response_hash values is always an array. Hence it will not necessary to check if the elements
+    #                       of a category element is a Hash or an Array of Hashes when recursing through the data.
     #
     # @option args [String] :xml_response inject a pre-prepared XML response.
     #
@@ -83,6 +97,10 @@ module EbayTrading
 
       @skip_type_casting = args[:skip_type_casting] || []
       @skip_type_casting = @skip_type_casting.split if @skip_type_casting.is_a?(String)
+
+      @known_arrays = args[:known_arrays] || []
+      @known_arrays = @known_arrays.split if @known_arrays.is_a?(String)
+      @known_arrays << 'errors'
 
       @message_id = nil
       if args.key?(:message_id)
@@ -229,11 +247,14 @@ module EbayTrading
       @xml_response = response.body
     end
 
+    # Parse the given XML using {SaxHandler} and return a nested Hash.
+    # @param [String] xml the XML string to be parsed.
+    # @return [Hash] a Hash corresponding to +xml+.
     def parse(xml)
       xml ||= ''
       xml = StringIO.new(xml) unless xml.respond_to?(:read)
 
-      handler = SaxHandler.new(skip_type_casting: skip_type_casting)
+      handler = SaxHandler.new(skip_type_casting: skip_type_casting, known_arrays: known_arrays)
       Ox.sax_parse(handler, xml, convert_special: true)
       handler.to_hash
     end

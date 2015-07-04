@@ -7,6 +7,7 @@ module EbayTrading
     attr_accessor :stack
     attr_accessor :path
     attr_reader :skip_type_casting
+    attr_reader :known_arrays
 
     def initialize(args = {})
       @stack = []
@@ -14,12 +15,13 @@ module EbayTrading
       @path = []
       @hash = nil
 
-      @skip_type_casting = []
-      if args.key? :skip_type_casting
-        args[:skip_type_casting] = [args[:skip_type_casting]] unless args[:skip_type_casting].is_a?(Array)
-        @skip_type_casting.concat(args[:skip_type_casting])
-      end
+      @skip_type_casting = args[:skip_type_casting] || []
+      @skip_type_casting = [@skip_type_casting] unless @skip_type_casting.is_a?(Array)
       @skip_type_casting.map! { |key| format(key) }
+
+      @known_arrays = args[:known_arrays] || []
+      @known_arrays = [@known_arrays] unless @known_arrays.is_a?(Array)
+      @known_arrays.map! { |key| format(key) }
     end
 
     def to_hash
@@ -90,7 +92,11 @@ module EbayTrading
           h[key] = [v, value]
         end
       else
-        h[key] = value
+        if known_arrays.include?(key)
+          h[key] = [value]
+        else
+          h[key] = value
+        end
       end
     end
 
