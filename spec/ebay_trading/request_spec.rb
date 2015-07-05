@@ -35,6 +35,9 @@ describe Request do
     it { is_expected.to be_success }
     it { is_expected.not_to be_failure }
     it { is_expected.not_to be_partial_failure }
+    it { is_expected.not_to have_errors }
+    it { is_expected.not_to have_warnings }
+
     it { expect(request.http_response_code).to eq(200) }
     it { expect(request.http_timeout).to eq(EbayTrading.configuration.http_timeout) }
     it { expect(request.timestamp).not_to be_nil }
@@ -118,6 +121,22 @@ describe Request do
       it { expect(request.find(:errors)).not_to be_nil }
       it { expect(request.find(:errors)).to be_a(Array) }
       it { expect(request.find(:errors).count).to eq(1) }
+
+      it { is_expected.to have_errors }
+      it { expect(request.errors).to be_a(Array) }
+      it { expect(request.errors.count).to eq(1) }
+      it { expect(request.errors.first).to be_a(Hash) }
+      it { expect(request.errors.first).to have_key(:severity_code) }
+      it { expect(request.errors.first[:severity_code]).to eq('Error') }
+      it { expect(request.errors.first).to have_key(:error_code) }
+      it { expect(request.errors.first[:error_code]).to eq(2) }
+      it { expect(request.errors.first).to have_key(:short_message) }
+      it { expect(request.errors.first[:short_message]).to eq('Unsupported API call.') }
+
+      it { is_expected.not_to have_warnings }
+      it { expect(request.warnings).to be_a(Array) }
+      it { expect(request.warnings).to be_empty }
+
 
       it { puts "\n#{request.to_s}\n" }
       it { puts "\n#{request.to_json_s}\n" }

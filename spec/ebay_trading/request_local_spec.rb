@@ -47,6 +47,8 @@ describe Request do
     it { is_expected.to be_success }
     it { is_expected.not_to be_failure }
     it { is_expected.not_to be_partial_failure }
+    it { is_expected.not_to have_errors }
+    it { is_expected.not_to have_warnings }
     it { expect(request.http_response_code).to eq(200) }
     it { expect(request.http_timeout).to eq(EbayTrading.configuration.http_timeout) }
     it { expect(request.timestamp).not_to be_nil }
@@ -88,6 +90,8 @@ describe Request do
 
     it { is_expected.not_to be_nil }
     it { is_expected.to be_success }
+    it { is_expected.not_to have_errors }
+    it { is_expected.not_to have_warnings }
     it { expect(request.response_hash).not_to be_nil }
     it { expect(request.response_hash).to be_a(Hash) }
 
@@ -120,6 +124,8 @@ describe Request do
     end
 
     it { is_expected.to be_success }
+    it { is_expected.not_to have_errors }
+    it { is_expected.not_to have_warnings }
 
     it { expect(response_hash).to have_key(:listing_start_price_details) }
     it { expect(response_hash).to have_key('listing_start_price_details') }

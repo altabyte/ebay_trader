@@ -146,6 +146,22 @@ module EbayTrading
       find(:ack, '').downcase.eql?('partialfailure')
     end
 
+    def has_errors?
+      errors.count > 0
+    end
+
+    def errors
+      find(:errors, []).select { |error| error[:severity_code] =~ /Error/i }
+    end
+
+    def has_warnings?
+      warnings.count > 0
+    end
+
+    def warnings
+      find(:errors, []).select { |error| error[:severity_code] =~ /Warning/i }
+    end
+
     # Get the timestamp of the response returned by eBay API.
     # The timestamp indicates the time when eBay processed the request; it does
     # not necessarily indicate the current eBay official eBay time.
@@ -163,7 +179,7 @@ module EbayTrading
     # If +path+ cannot be matched the value of +default+ is returned.
     # @param [Array [String|Symbol]] path an array of the keys defining the path to the node of interest.
     # @param [Object] default the value to be returned if +path+ cannot be matched.
-    # @return [Object] the first value found in +path+, or +default+.
+    # @return [Array] the first value found in +path+, or +default+.
     def find(path, default = nil)
       deep_find(@response_hash, path, default)
     end
