@@ -35,6 +35,9 @@ module EbayTrading
     # @return [Fixnum] the number of seconds before the HTTP session times out.
     attr_reader :http_timeout
 
+    # @return [Symbol] :float, :fixnum or :money
+    attr_reader :price_type
+
     def initialize
       self.environment = :sandbox
       @dev_id = nil
@@ -47,6 +50,8 @@ module EbayTrading
       @ebay_site_id = 0
       @ebay_api_version = 927   # 2015-Jun-12
       @http_timeout = 30        # seconds
+
+      @price_type = :float
     end
 
     # Set the eBay environment to either *:sandbox* or *:production*.
@@ -98,6 +103,28 @@ module EbayTrading
       @cert_id = id
     end
 
+    # Set the type to be used to represent price values, with the default being :float.
+    # If performing calculations or analytics it be generally preferable to use integer
+    # based values as it mitigates any rounding/accuracy issues.
+    #
+    # * +*:float*+ Price values will be parsed into floats.
+    # * +*:fixnum*+ Price values will be converted to +Fixnum+
+    # * +*:integer*+ Price values will be converted to +Fixnum+
+    # * +*:money*+ Price values will be converted to {https://github.com/RubyMoney/money Money} objects, but only if the +Money+ gem is available to your app, otherwise +:fixnum+ will be assumed.
+    #
+    # @param [Symbol] price_type_symbol one of [:float, :fixnum, :integer, :money]
+    # @return [Symbol] the symbol assumed for price values.
+    #
+    def price_type=(price_type_symbol)
+      case price_type_symbol
+        when :fixnum  then @price_type = :fixnum
+        when :integer then @price_type = :fixnum
+        when :money   then @price_type = EbayTrading.is_money_gem_installed? ? :money : :fixnum
+        else
+          @price_type = :float
+      end
+      @price_type
+    end
 
     #---------------------------------------------------------------------------
     private

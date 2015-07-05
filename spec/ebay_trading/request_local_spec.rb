@@ -10,7 +10,10 @@ describe Request do
   # Actually, configuration should not be necessary for local XML processing?
   before :all do
     @auth_token = ENV['EBAY_API_AUTH_TOKEN_TEST_USER_1']
+  end
+  let(:auth_token) { @auth_token }
 
+  before do
     EbayTrading.configure do |config|
       config.environment = :sandbox
       config.ebay_site_id = 0 # ebay.com
@@ -19,7 +22,6 @@ describe Request do
       config.cert_id = ENV['EBAY_API_CERT_ID_SANDBOX']
     end
   end
-  let(:auth_token) { @auth_token }
 
 
   describe 'Submitting a prepared XML response to requesting a sub-set of categories' do
@@ -141,6 +143,7 @@ describe Request do
     it { expect(details[:description]).to be_a(String) }
     it { expect(details).to have_key(:start_price) }
     it { expect(details[:start_price]).to be_a(Float) }
+    it { expect(details[:start_price]).to eq(0.01) }
     it { expect(details).to have_key(:start_price_currency_id) }
     it { expect(details[:start_price_currency_id]).to be_a(String) }
     it { expect(details[:start_price_currency_id]).to eq('USD') }
@@ -150,5 +153,53 @@ describe Request do
     # detail_version is a Fixnum, but is included in skip_type_casting list
     it { expect(details).to have_key(:detail_version) }
     it { expect(details[:detail_version]).to be_a(String) }
+  end
+
+  context 'When configuration price_type is set to :integer' do
+
+    before { EbayTrading.configure { |config| config.price_type = :integer } }
+
+    let(:response_xml) do
+      self.file_to_string("#{__dir__}/xml_responses/get_ebay_details/listing_start_price_details.xml")
+    end
+
+    subject(:request) do
+      Request.new('GeteBayDetails', @auth_token, skip_type_casting: 'detail_version', xml_response: response_xml, xml_tab_width: 2) do
+        DetailName 'ListingStartPriceDetails'
+      end
+    end
+
+    let(:details) { request.response_hash[:listing_start_price_details].last }
+
+    it { expect(details[:start_price]).to be_a(Fixnum) }
+    it { expect(details[:start_price]).to eq(99) }
+  end
+
+
+  context 'When configuration price_type is set to :money' do
+
+    before { EbayTrading.configure { |config| config.price_type = :money } }
+
+    let(:response_xml) do
+      self.file_to_string("#{__dir__}/xml_responses/get_ebay_details/listing_start_price_details.xml")
+    end
+
+    subject(:request) do
+      Request.new('GeteBayDetails', @auth_token, skip_type_casting: 'detail_version', xml_response: response_xml, xml_tab_width: 2) do
+        DetailName 'ListingStartPriceDetails'
+      end
+    end
+
+    let(:details) { request.response_hash[:listing_start_price_details].last }
+
+    it 'should expect a Money price if Money gem installed, otherwise Fixnum' do
+      if EbayTrading.is_money_gem_installed?
+        expect(details[:start_price]).to be_a(Money)
+        expect(details[:start_price]).to eq(Money.new(99, 'USD'))
+      else
+        expect(details[:start_price]).to be_a(Fixnum)
+        expect(details[:start_price]).to eq(99)
+      end
+    end
   end
 end

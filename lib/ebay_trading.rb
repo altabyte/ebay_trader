@@ -27,5 +27,19 @@ module EbayTrading
     def configure
       yield configuration
     end
+
+    # Determine if the {https://github.com/RubyMoney/money Money} gem is installed.
+    # @return [Boolean] +true+ if Money gem can be used by this app.
+    #
+    def is_money_gem_installed?
+      begin
+        return true if defined? Money
+        gem 'money'
+        require 'money' unless defined? Money
+        true
+      rescue Gem::LoadError
+        false
+      end
+    end
   end
 end

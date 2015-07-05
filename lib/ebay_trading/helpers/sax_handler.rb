@@ -14,6 +14,7 @@ module EbayTrading
       @stack.push(HashWithIndifferentAccess.new)
       @path = []
       @hash = nil
+      @attributes = {}
 
       @skip_type_casting = args[:skip_type_casting] || []
       @skip_type_casting = [@skip_type_casting] unless @skip_type_casting.is_a?(Array)
@@ -29,6 +30,7 @@ module EbayTrading
     end
 
     def start_element(name)
+      @attributes.clear
       name = name.to_s
       path.push(name)
 
@@ -58,7 +60,21 @@ module EbayTrading
         end
       end
 
+      # If 'CurrencyID' is a defined attribute we are dealing with money type
+      if @attributes.key?('CurrencyID')
+        value = (value * 100).round.to_i unless EbayTrading.configuration.price_type == :float
+        if EbayTrading.configuration.price_type == :money && EbayTrading.is_money_gem_installed?
+          value = Money.new(value, @attributes['CurrencyID'])
+        end
+      end
+
       parent[key] = value
+      unless @attributes.empty?
+        @attributes.each_pair do |attr_key, attr_value|
+          attr_key_element_name = format_key("#{path.last}#{attr_key}")
+          parent[attr_key_element_name] = attr_value
+        end
+      end
     end
 
     def cdata(value)
@@ -71,10 +87,9 @@ module EbayTrading
       return if name.to_s.downcase == 'xmlns'
       last = path.last
       return if last.nil?
+
       name = name[0].upcase + name[1...name.length]
-      key = format_key("#{last}#{name}")
-      parent = @stack[-2]
-      parent[key] = value
+      @attributes[name] = value
     end
 
     def error(message, line, column)
