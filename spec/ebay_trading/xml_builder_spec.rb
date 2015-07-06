@@ -1,4 +1,4 @@
-require 'ebay_trading/helpers/xml_builder'
+require 'ebay_trading/xml_builder'
 
 include EbayTrading
 

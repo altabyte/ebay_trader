@@ -5,8 +5,8 @@ require 'securerandom'
 require 'YAML'
 
 require 'ebay_trading'
-require 'ebay_trading/helpers/sax_handler'
-require 'ebay_trading/helpers/xml_builder'
+require 'ebay_trading/sax_handler'
+require 'ebay_trading/xml_builder'
 
 module EbayTrading
 
