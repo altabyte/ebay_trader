@@ -68,7 +68,13 @@ module EbayTrading
         end
       end
 
-      parent[key] = value
+      if parent[key].is_a?(Array)
+        parent[key].pop if parent[key].last.is_a?(Hash) && parent[key].last.empty?
+        parent[key] << value
+      else
+        parent[key] = value
+      end
+
       unless @attributes.empty?
         @attributes.each_pair do |attr_key, attr_value|
           attr_key_element_name = format_key("#{path.last}#{attr_key}")
