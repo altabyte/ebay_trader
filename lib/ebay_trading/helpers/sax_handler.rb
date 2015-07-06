@@ -52,7 +52,7 @@ module EbayTrading
       if auto_cast
         case
           when value =~ /false/i then value = false
-          when value =~ /false/i then value = true
+          when value =~ /true/i  then value = true
           when value.match(/^[0-9]+$/) then value = value.to_i
           when value.match(/^[0-9]+[.][0-9]+$/) then value = value.to_f
           when value.match(/^[0-9]{4}-[0-9]{2}-[0-9]{2}[T ][0-9]{2}:[0-9]{2}:[0-9]{2}(.[0-9a-z]+)?$/i)

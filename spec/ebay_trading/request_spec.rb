@@ -51,6 +51,12 @@ describe Request do
     it { expect(request.known_arrays).to be_a(Array) }
     it { expect(request.known_arrays).to include('errors') }
 
+    it {
+      expect(request.response_time).to be >= 0
+      puts "Request took #{request.response_time} seconds"
+    }
+
+
     it 'should support both symbol and string keys for the response hash' do
       hash = request.response_hash
       expect(hash).to have_key('timestamp')
@@ -93,6 +99,11 @@ describe Request do
     end
 
     it { expect(request.http_response_code).to eq(200) }
+
+    it {
+      expect(request.response_time).to be >= 0
+      puts "Request took #{request.response_time} seconds"
+    }
   end
 
 

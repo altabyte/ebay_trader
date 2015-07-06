@@ -15,7 +15,8 @@ module EbayTrading
     # eBay Trading API XML Namespace
     XMLNS = 'urn:ebay:apis:eBLBaseComponents'
 
-    attr_reader :call_name, :auth_token
+    attr_reader :call_name
+    attr_reader :auth_token
     attr_reader :ebay_site_id
     attr_reader :message_id
     attr_reader :response_hash
@@ -26,6 +27,7 @@ module EbayTrading
     attr_reader :xml_response
     attr_reader :http_timeout
     attr_reader :http_response_code
+    attr_reader :response_time
 
     # Construct a new eBay Trading API call.
     #
@@ -86,6 +88,7 @@ module EbayTrading
     # @raise [EbayTradingTimeoutError] if the HTTP call times out.
     #
     def initialize(call_name, auth_token, args = {}, &block)
+      time = Time.now
       @call_name  = call_name.freeze
       @auth_token = auth_token.freeze
 
@@ -125,6 +128,7 @@ module EbayTrading
 
       @response_hash = parsed_hash[root_key]
       @response_hash.freeze
+      @response_time = Time.now - time
     end
 
     # Determine if this request has been successful.
