@@ -129,9 +129,9 @@ describe Request do
       it { expect(request.timestamp).to be_a(Time) }
 
       # Ensure that 'Errors' is an array, even though there is only 1 error
-      it { expect(request.find(:errors)).not_to be_nil }
-      it { expect(request.find(:errors)).to be_a(Array) }
-      it { expect(request.find(:errors).count).to eq(1) }
+      it { expect(request.deep_find(:errors)).not_to be_nil }
+      it { expect(request.deep_find(:errors)).to be_a(Array) }
+      it { expect(request.deep_find(:errors).count).to eq(1) }
 
       it { is_expected.to have_errors }
       it { expect(request.errors).to be_a(Array) }

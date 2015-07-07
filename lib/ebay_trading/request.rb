@@ -5,14 +5,12 @@ require 'securerandom'
 require 'YAML'
 
 require 'ebay_trading'
-require 'ebay_trading/deep_find'
 require 'ebay_trading/sax_handler'
 require 'ebay_trading/xml_builder'
 
 module EbayTrading
 
   class Request
-    include DeepFind
 
     # eBay Trading API XML Namespace
     XMLNS = 'urn:ebay:apis:eBLBaseComponents'
@@ -136,20 +134,20 @@ module EbayTrading
     # Determine if this request has been successful.
     # This should return the opposite of {#failure?}
     def success?
-      find(:ack, '').downcase.eql?('success')
+      deep_find(:ack, '').downcase.eql?('success')
     end
 
     # Determine if this request has failed.
     # This should return the opposite of {#success?}
     def failure?
-      find(:ack, '').downcase.eql?('failure')
+      deep_find(:ack, '').downcase.eql?('failure')
     end
 
     # Determine if this response has partially failed.
     # This eBay response is somewhat ambiguous, but generally means the request was
     # processed by eBay, but warnings were generated.
     def partial_failure?
-      find(:ack, '').downcase.eql?('partialfailure')
+      deep_find(:ack, '').downcase.eql?('partialfailure')
     end
 
     def has_errors?
@@ -157,7 +155,7 @@ module EbayTrading
     end
 
     def errors
-      find(:errors, []).select { |error| error[:severity_code] =~ /Error/i }
+      deep_find(:errors, []).select { |error| error[:severity_code] =~ /Error/i }
     end
 
     def has_warnings?
@@ -165,7 +163,7 @@ module EbayTrading
     end
 
     def warnings
-      find(:errors, []).select { |error| error[:severity_code] =~ /Warning/i }
+      deep_find(:errors, []).select { |error| error[:severity_code] =~ /Warning/i }
     end
 
     # Get the timestamp of the response returned by eBay API.
@@ -177,7 +175,7 @@ module EbayTrading
     # @return [Time] the response timestamp.
     #
     def timestamp
-      find :timestamp
+      deep_find :timestamp
     end
 
     # Recursively deep search through the {#response_hash} tree and return the
@@ -186,8 +184,8 @@ module EbayTrading
     # @param [Array [String|Symbol]] path an array of the keys defining the path to the node of interest.
     # @param [Object] default the value to be returned if +path+ cannot be matched.
     # @return [Array] the first value found in +path+, or +default+.
-    def find(path, default = nil)
-      deep_find(@response_hash, path, default)
+    def deep_find(path, default = nil)
+      @response_hash.deep_find(path, default)
     end
 
     # Get a String representation of the response XML with indentation.

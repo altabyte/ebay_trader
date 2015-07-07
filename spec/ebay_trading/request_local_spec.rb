@@ -63,10 +63,10 @@ describe Request do
 
     it { expect(request.response_hash).to have_key(:category_array) }
     it { expect(request.response_hash).to have_key(:category_count) }
-    it { expect(request.find(:category_count)).to eq(number_of_categories) }
+    it { expect(request.deep_find(:category_count)).to eq(number_of_categories) }
 
     it 'Should find the array of categories' do
-      categories = request.find %w'category_array category'
+      categories = request.deep_find %w'category_array category'
       expect(categories).not_to be_nil
       expect(categories).to be_a(Array)
       expect(categories.count).to eq(number_of_categories)
@@ -132,7 +132,7 @@ describe Request do
     it { expect(response_hash).to have_key(:listing_start_price_details) }
     it { expect(response_hash).to have_key('listing_start_price_details') }
 
-    it { expect(request.find(:listing_start_price_details)).to be_a(Array) }
+    it { expect(request.deep_find(:listing_start_price_details)).to be_a(Array) }
     it { expect(response_hash[:listing_start_price_details]).to be_a(Array) }
     it { expect(response_hash[:listing_start_price_details].first).to be_a(Hash) }
 
