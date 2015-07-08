@@ -19,11 +19,11 @@ module EbayTrading
 
       @skip_type_casting = args[:skip_type_casting] || []
       @skip_type_casting = [@skip_type_casting] unless @skip_type_casting.is_a?(Array)
-      @skip_type_casting.map! { |key| format(key) }
+      @skip_type_casting.map! { |key| format(key.to_s) }
 
       @known_arrays = args[:known_arrays] || []
       @known_arrays = [@known_arrays] unless @known_arrays.is_a?(Array)
-      @known_arrays.map! { |key| format(key) }
+      @known_arrays.map! { |key| format(key.to_s) }
     end
 
     def to_hash

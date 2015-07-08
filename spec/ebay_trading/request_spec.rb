@@ -45,6 +45,8 @@ describe Request do
     it { expect(request.call_name).to eq(call_name) }
     it { expect(request.ebay_site_id).to eq(EbayTrading.configuration.ebay_site_id) }
     it { expect(request.response_hash).to be_a(Hash) }
+    it { expect(request.response_hash).to be_a(HashWithIndifferentAccess) }
+    it { expect(request.response_hash).to respond_to :deep_find }
     it { expect(request.xml_tab_width).to eq(@tab_width) }
     it { expect(request.skip_type_casting).to be_a(Array) }
     it { expect(request.skip_type_casting).to be_empty }
