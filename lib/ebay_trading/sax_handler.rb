@@ -64,8 +64,11 @@ module EbayTrading
       # If 'CurrencyID' is a defined attribute we are dealing with money type
       if @attributes.key?('CurrencyID')
         value = (value * 100).round.to_i unless EbayTrading.configuration.price_type == :float
+        currency = @attributes.delete('CurrencyID')
         if EbayTrading.configuration.price_type == :money && EbayTrading.is_money_gem_installed?
-          value = Money.new(value, @attributes['CurrencyID'])
+          value = Money.new(value, currency)
+        else
+          @attributes['Currency'] = currency
         end
       end
 

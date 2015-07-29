@@ -36,4 +36,7 @@ Gem::Specification.new do |spec|
 
   spec.add_runtime_dependency 'activesupport',  '~> 4.0'
   spec.add_runtime_dependency 'ox', '~> 2.2'
+
+  # Uncomment the following line to have monetary values cast to Money types...
+  # spec.add_runtime_dependency 'money'
 end

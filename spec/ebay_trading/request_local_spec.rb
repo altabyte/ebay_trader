@@ -144,9 +144,9 @@ describe Request do
     it { expect(details).to have_key(:start_price) }
     it { expect(details[:start_price]).to be_a(Float) }
     it { expect(details[:start_price]).to eq(0.01) }
-    it { expect(details).to have_key(:start_price_currency_id) }
-    it { expect(details[:start_price_currency_id]).to be_a(String) }
-    it { expect(details[:start_price_currency_id]).to eq('USD') }
+    it { expect(details).to have_key(:start_price_currency) }
+    it { expect(details[:start_price_currency]).to be_a(String) }
+    it { expect(details[:start_price_currency]).to eq('USD') }
     it { expect(details).to have_key(:update_time) }
     it { expect(details[:update_time]).to be_a(Time) }
 
@@ -196,9 +196,12 @@ describe Request do
       if EbayTrading.is_money_gem_installed?
         expect(details[:start_price]).to be_a(Money)
         expect(details[:start_price]).to eq(Money.new(99, 'USD'))
+        expect(details).not_to have_key(:start_price_currency_id)
       else
         expect(details[:start_price]).to be_a(Fixnum)
         expect(details[:start_price]).to eq(99)
+        expect(details).not_to have_key(:start_price_currency_id)
+        expect(details).to have_key(:start_price_currency)
       end
     end
   end
