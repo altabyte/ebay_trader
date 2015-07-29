@@ -1,3 +1,4 @@
+require 'digest'
 require 'uri'
 
 module EbayTrading
@@ -54,6 +55,8 @@ module EbayTrading
       @http_timeout = 30        # seconds
 
       @price_type = :float
+
+      @username_auth_tokens = {}
     end
 
     # Set the eBay environment to either *:sandbox* or *:production*.
@@ -128,6 +131,34 @@ module EbayTrading
       @price_type
     end
 
+    # This is an optional helper method to map eBay user IDs, or other acronyms,
+    # to API auth tokens.
+    # If mapped here the application can later retrieve an auth token
+    # corresponding to an easy to remember string such as 'my_ebay_username'.
+    #
+    # @param [String]
+    #
+
+    # Map an eBay API auth token to an easy to remember +String+ key.
+    # This could be the corresponding eBay username thus making it easier
+    # to select the user auth token from a UI list or command line argument.
+    #
+    # @param [String] key auth_token identifier, typically an eBay username.
+    # @param [String] auth_token an eBay API authentication token.
+    #
+    def store_auth_token(key, auth_token)
+      @username_auth_tokens[secure_auth_token_key(key)] = auth_token
+    end
+
+    # Get the eBay API auth token matching the given +key+, or +nil+ if
+    # not found.
+    #
+    # @return [String] the corresponding auth token, or nil.
+    #
+    def auth_token_for(key)
+      @username_auth_tokens[secure_auth_token_key(key)]
+    end
+
     #---------------------------------------------------------------------------
     private
 
@@ -138,6 +169,10 @@ module EbayTrading
     #
     def application_key_valid?(id)
       id =~ /[A-Z0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12}/i
+    end
+
+    def secure_auth_token_key(key)
+      Digest::MD5.hexdigest(key.to_s.downcase)
     end
 
   end

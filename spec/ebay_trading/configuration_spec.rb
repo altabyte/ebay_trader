@@ -91,4 +91,24 @@ describe Configuration do
       expect { config.cert_id = 'INVALID' }.to raise_error EbayTradingError
     end
   end
+
+
+  context 'when mapping auth tokens to eBay usernames' do
+
+    context 'Before any auth tokens are registered' do
+      it { expect(config.auth_token_for('unregistered')).to be_nil }
+    end
+
+    context 'After storing an auth token' do
+      let(:key) { 'my_ebay_username' }
+      let(:auth_token) { '***********_some_really_long_ebay_api_auth_token_***********' }
+
+      before { config.store_auth_token(key, auth_token) }
+
+      it { expect(config.auth_token_for('unregistered')).to be_nil }
+      it { expect(config.auth_token_for(key)).to eq(auth_token) }
+      it { expect(config.auth_token_for(key.upcase)).to eq(auth_token) }
+      it { expect(config.auth_token_for(key.to_sym)).to eq(auth_token) }
+    end
+  end
 end
