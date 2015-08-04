@@ -33,7 +33,7 @@ module EbayTrading
 
     # @return [Fixnum] the eBay Trading API version.
     # @see http://developer.ebay.com/DevZone/XML/docs/ReleaseNotes.html
-    attr_reader :ebay_api_version
+    attr_accessor :ebay_api_version
 
     # @return [Fixnum] the number of seconds before the HTTP session times out.
     attr_reader :http_timeout
@@ -51,7 +51,7 @@ module EbayTrading
       @cert_id = nil
 
       @ebay_site_id = 0
-      @ebay_api_version = 927   # 2015-Jun-12
+      @ebay_api_version = 931   # 2015-Jul-10
       @http_timeout = 30        # seconds
 
       @price_type = :float
