@@ -41,6 +41,9 @@ module EbayTrading
     # @return [Symbol] :float, :fixnum or :money
     attr_reader :price_type
 
+    # @return [Proc] an optional Proc or Lambda to record application level API request call volume.
+    attr_reader :counter_callback
+
     def initialize
       self.environment = :sandbox
       @dev_id = nil
@@ -157,6 +160,27 @@ module EbayTrading
     #
     def auth_token_for(key)
       @username_auth_tokens[secure_auth_token_key(key)]
+    end
+
+    # Provide a callback to track the number of eBay API calls made.
+    #
+    # As eBay rations the number of API calls you can make in a single day,
+    # typically to 5_000, it is advisable to record the volume of calls submitted.
+    # Here you can provide an application level callback that will be called
+    # during each API {Request}.
+    #
+    # @param [Proc|lambda] callback to be called during each eBay API request call.
+    #
+    def counter=(callback)
+      @counter_callback = callback if callback && callback.is_a?(Proc)
+    end
+
+    # Determine if a {#counter_callback} has been set for this application.
+    #
+    # @return [Boolean] +true+ if a counter proc or lambda has been provided.
+    #
+    def has_counter?
+      @counter_callback != nil
     end
 
     #---------------------------------------------------------------------------

@@ -233,6 +233,8 @@ module EbayTrading
         response = http.start { |http| http.request(post) }
       rescue Net::ReadTimeout
         raise EbayTradingTimeoutError, "Failed to complete #{call_name} in #{http_timeout} seconds"
+      ensure
+        EbayTrading.configuration.counter_callback.call if EbayTrading.configuration.has_counter?
       end
 
       @http_response_code = response.code.to_i.freeze

@@ -8,20 +8,27 @@ describe Request do
   before :all do
     @auth_token = ENV['EBAY_API_AUTH_TOKEN_TEST_USER_1']
 
+    # Use a global variable to store the API call counter.
+    # In a production environment you would probably want to INCR a Redis DB variable.
+    $api_call_count = 0
+
     EbayTrading.configure do |config|
       config.environment = :sandbox
       config.ebay_site_id = 0 # ebay.com
       config.dev_id  = ENV['EBAY_API_DEV_ID_SANDBOX']
       config.app_id  = ENV['EBAY_API_APP_ID_SANDBOX']
       config.cert_id = ENV['EBAY_API_CERT_ID_SANDBOX']
+      config.counter = -> { $api_call_count += 1 }
     end
   end
   let(:auth_token) { @auth_token }
 
+  it { expect($api_call_count).to eq(0) }
 
   describe 'The Hello World scenario' do
 
     before(:all) do
+      @previous_api_call_count = $api_call_count
       @tab_width = 2
       @call_name = 'GeteBayOfficialTime'
       @request = Request.new(@call_name, @auth_token, xml_tab_width: @tab_width)
@@ -37,6 +44,10 @@ describe Request do
     it { is_expected.not_to be_partial_failure }
     it { is_expected.not_to have_errors }
     it { is_expected.not_to have_warnings }
+
+    it 'Should increment the global variable $api_call_count' do
+      expect($api_call_count).to eq(@previous_api_call_count + 1)
+    end
 
     it { expect(request.http_response_code).to eq(200) }
     it { expect(request.http_timeout).to eq(EbayTrading.configuration.http_timeout) }

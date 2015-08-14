@@ -111,4 +111,30 @@ describe Configuration do
       it { expect(config.auth_token_for(key.to_sym)).to eq(auth_token) }
     end
   end
+
+
+  context 'When using the counter' do
+    context 'Before counter is set' do
+      it { expect(config).not_to have_counter }
+    end
+
+    context 'After providing a counter' do
+      before do
+        @count = 0
+        config.counter = -> { @count += 1 }
+      end
+
+      it { expect(config).to have_counter }
+      it { expect(@count).to eq(0) }
+
+      it 'should increment the value of count' do
+        config.counter_callback.call
+        expect(@count).to eq(1)
+        config.counter_callback.call
+        expect(@count).to eq(2)
+        config.counter_callback.call
+        expect(@count).to eq(3)
+      end
+    end
+  end
 end
