@@ -112,8 +112,10 @@ module EbayTrading
 
       @xml_request = '<?xml version="1.0" encoding="utf-8"?>' << "\n"
       @xml_request << XMLBuilder.new(tab_width: xml_tab_width).root("#{call_name}Request", xmlns: XMLNS) do
-        RequesterCredentials do
-          eBayAuthToken auth_token.to_s
+        unless auth_token.blank?
+          RequesterCredentials do
+            eBayAuthToken auth_token.to_s
+          end
         end
         instance_eval(&block) if block_given?
         MessageID message_id unless message_id.nil?

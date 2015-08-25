@@ -35,6 +35,10 @@ module EbayTrading
     # @see http://developer.ebay.com/DevZone/XML/docs/ReleaseNotes.html
     attr_accessor :ebay_api_version
 
+    # @return [String] the eBay RuName for the application.
+    # @see http://developer.ebay.com/DevZone/xml/docs/HowTo/Tokens/GettingTokens.html#step1
+    attr_accessor :ru_name
+
     # @return [Fixnum] the number of seconds before the HTTP session times out.
     attr_reader :http_timeout
 
