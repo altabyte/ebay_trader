@@ -11,6 +11,8 @@ describe SaxHandler do
 <?xml version="1.0" encoding="UTF-8"?>
 <GetItemResponse xmlns="urn:ebay:apis:eBLBaseComponents">
   <Item>
+    <StartPrice currencyID="USD">24.99</StartPrice>
+    <Percent>30.0</Percent>
     <PictureDetails>
       <GalleryType>Gallery</GalleryType>
       <GalleryURL>http://i.ebayimg.com/00/s/MTI4MFgxMjgw/z/JqwAAOSwajVUODlI/$_1.JPG?set_id=880000500F</GalleryURL>
@@ -24,7 +26,7 @@ describe SaxHandler do
     XML
   end
 
-  context 'When using HashWithIndifferentAccess with deep_find mixed in' do
+  describe 'HashWithIndifferentAccess.deep_find' do
 
     subject(:hash) do
       handler = SaxHandler.new
@@ -57,6 +59,73 @@ describe SaxHandler do
       element = hash.deep_find([:get_item_response, :element_does_not_exist], default)
       expect(element).not_to be_nil
       expect(element).to eq(default)
+    end
+  end
+
+
+  describe 'Price types' do
+
+    let(:start_price) { hash.deep_find([:get_item_response, :item, :start_price]) }
+    let(:start_price_currency) { hash.deep_find([:get_item_response, :item, :start_price_currency]) }
+    let(:percent) { hash.deep_find([:get_item_response, :item, :percent]) }
+
+    context 'Default - BigDecimal' do
+
+      before { EbayTrading.configuration.price_type = nil } # Defaults to BigDecimal
+
+      subject(:hash) do
+        handler = SaxHandler.new
+        Ox.sax_parse(handler, StringIO.new(xml), convert_special: true)
+        handler.to_hash
+      end
+
+      it { expect(EbayTrading.configuration.price_type).to eq(:big_decimal) }
+      it { expect(start_price).to be_a(BigDecimal) }
+      it { expect(start_price).to eq(BigDecimal.new('24.99')) }
+
+      it { expect(start_price_currency).not_to be_nil }
+      it { expect(start_price_currency).to eq('USD') }
+      it { expect(percent).to be_a(Float) }
+    end
+
+
+    context 'Float' do
+
+      before { EbayTrading.configuration.price_type = :float }
+
+      subject(:hash) do
+        handler = SaxHandler.new
+        Ox.sax_parse(handler, StringIO.new(xml), convert_special: true)
+        handler.to_hash
+      end
+
+      it { expect(EbayTrading.configuration.price_type).to eq(:float) }
+      it { expect(start_price).to be_a(Float) }
+      it { expect(start_price).to eq(24.99) }
+
+      it { expect(start_price_currency).not_to be_nil }
+      it { expect(start_price_currency).to eq('USD') }
+      it { expect(percent).to be_a(Float) }
+    end
+
+
+    context 'Fixnum' do
+
+      before { EbayTrading.configuration.price_type = :fixnum }
+
+      subject(:hash) do
+        handler = SaxHandler.new
+        Ox.sax_parse(handler, StringIO.new(xml), convert_special: true)
+        handler.to_hash
+      end
+
+      it { expect(EbayTrading.configuration.price_type).to eq(:fixnum) }
+      it { expect(start_price).to be_a(Fixnum) }
+      it { expect(start_price).to eq(2499) }
+
+      it { expect(start_price_currency).not_to be_nil }
+      it { expect(start_price_currency).to eq('USD') }
+      it { expect(percent).to be_a(Float) }
     end
   end
 

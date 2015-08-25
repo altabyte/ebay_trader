@@ -142,8 +142,8 @@ describe Request do
     it { expect(details).to have_key(:description) }
     it { expect(details[:description]).to be_a(String) }
     it { expect(details).to have_key(:start_price) }
-    it { expect(details[:start_price]).to be_a(Float) }
-    it { expect(details[:start_price]).to eq(0.01) }
+    it { expect(details[:start_price]).to be_a(BigDecimal) }
+    it { expect(details[:start_price]).to eq(BigDecimal.new('0.01')) }
     it { expect(details).to have_key(:start_price_currency) }
     it { expect(details[:start_price_currency]).to be_a(String) }
     it { expect(details[:start_price_currency]).to eq('USD') }

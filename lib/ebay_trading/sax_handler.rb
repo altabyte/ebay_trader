@@ -50,25 +50,27 @@ module EbayTrading
       auto_cast = !(skip_type_casting.include?(path.last) || skip_type_casting.include?(key.to_s))
       parent = @stack[-2]
 
-      if auto_cast
+      # If 'CurrencyID' is a defined attribute we are dealing with money type
+      if @attributes.key?('CurrencyID')
+        currency = @attributes.delete('CurrencyID')
+        value = BigDecimal.new(value)
+        if EbayTrading.configuration.price_type == :money && EbayTrading.is_money_gem_installed?
+          value = Money.new((value * 100).round.to_i, currency)
+        else
+          @attributes['Currency'] = currency
+          value = value.to_f if EbayTrading.configuration.price_type == :float
+          value = (value * 100).round.to_i if EbayTrading.configuration.price_type == :fixnum
+        end
+      end
+
+      if auto_cast && value.is_a?(String)
         case
-          when value =~ /false/i then value = false
-          when value =~ /true/i  then value = true
+          when value.downcase == 'false' then value = false
+          when value.downcase == 'true'  then value = true
           when value.match(/^[0-9]+$/) then value = value.to_i
           when value.match(/^[0-9]+[.][0-9]+$/) then value = value.to_f
           when value.match(/^[0-9]{4}-[0-9]{2}-[0-9]{2}[T ][0-9]{2}:[0-9]{2}:[0-9]{2}(.[0-9a-z]+)?$/i)
             value = Time.parse(value)
-        end
-      end
-
-      # If 'CurrencyID' is a defined attribute we are dealing with money type
-      if @attributes.key?('CurrencyID')
-        value = (value * 100).round.to_i unless EbayTrading.configuration.price_type == :float
-        currency = @attributes.delete('CurrencyID')
-        if EbayTrading.configuration.price_type == :money && EbayTrading.is_money_gem_installed?
-          value = Money.new(value, currency)
-        else
-          @attributes['Currency'] = currency
         end
       end
 
@@ -145,6 +147,5 @@ module EbayTrading
       key = key.gsub('EBay',   'Ebay')
       key.underscore.to_sym
     end
-
   end
 end

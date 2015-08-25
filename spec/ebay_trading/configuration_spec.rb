@@ -13,8 +13,9 @@ describe Configuration do
 
     it { is_expected.not_to have_keys_set }
     it { expect(config.ebay_site_id).to eq(0) }
-    it { expect(config.ebay_api_version).to be >= 931 }
+    it { expect(config.ebay_api_version).to be >= 933 }
     it { expect(config.http_timeout).to eq(30) }
+    it { expect(config.price_type).to eq(:big_decimal) }
 
   end
 

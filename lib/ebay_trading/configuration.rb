@@ -54,10 +54,10 @@ module EbayTrading
       @cert_id = nil
 
       @ebay_site_id = 0
-      @ebay_api_version = 931   # 2015-Jul-10
+      @ebay_api_version = 933   # 2015-Jul-24
       @http_timeout = 30        # seconds
 
-      @price_type = :float
+      @price_type = :big_decimal
 
       @username_auth_tokens = {}
     end
@@ -111,10 +111,11 @@ module EbayTrading
       @cert_id = id
     end
 
-    # Set the type to be used to represent price values, with the default being :float.
+    # Set the type to be used to represent price values, with the default being +:big_decimal+.
     # If performing calculations or analytics it be generally preferable to use integer
     # based values as it mitigates any rounding/accuracy issues.
     #
+    # * +*:big_decimal*+ Price values will be parsed into
     # * +*:float*+ Price values will be parsed into floats.
     # * +*:fixnum*+ Price values will be converted to +Fixnum+
     # * +*:integer*+ Price values will be converted to +Fixnum+
@@ -127,9 +128,10 @@ module EbayTrading
       case price_type_symbol
         when :fixnum  then @price_type = :fixnum
         when :integer then @price_type = :fixnum
+        when :float   then @price_type = :float
         when :money   then @price_type = EbayTrading.is_money_gem_installed? ? :money : :fixnum
         else
-          @price_type = :float
+          @price_type = :big_decimal
       end
       @price_type
     end
