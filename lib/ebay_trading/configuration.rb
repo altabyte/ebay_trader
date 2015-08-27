@@ -12,18 +12,19 @@ module EbayTrading
     # @see https://ebaydts.com/eBayKBDetails?KBid=429
     URI_SANDBOX = 'https://api.sandbox.ebay.com/ws/api.dll'
 
+    # The Dev ID application key.
     # @return [String] Application keys Developer ID.
-    attr_reader :dev_id
+    attr_accessor :dev_id
 
     # @return [String] Application keys App ID.
-    attr_reader :app_id
+    attr_accessor :app_id
 
     # @return [String] Application keys Certificate ID.
-    attr_reader :cert_id
+    attr_accessor :cert_id
 
     # @return [URI] Get the URI for eBay API requests, which will be different for
     # sandbox and production environments.
-    attr_reader :uri
+    attr_accessor :uri
 
     # @return [Fixnum] The default eBay site ID to use in API requests, default is 0.
     # This can be overridden by including an ebay_site_id value in the list of
@@ -42,11 +43,37 @@ module EbayTrading
     # @return [Fixnum] the number of seconds before the HTTP session times out.
     attr_reader :http_timeout
 
-    # @return [Symbol] :float, :fixnum or :money
-    attr_reader :price_type
+    # Set the type of object to be used to represent price values, with the default being +:big_decimal+.
+    #
+    # * +*:big_decimal*+ expose price values as +BigDecimal+
+    # * +*:money*+ expose price values as {https://github.com/RubyMoney/money Money} objects, but only if the +Money+ gem is available to your app.
+    # * +*:fixnum*+ expose price values as +Fixnum+
+    # * +*:integer*+ expose price values as +Fixnum+
+    # * +*:float*+ expose price values as +Float+ - not recommended!
+    #
+    # @return [Symbol] :big_decimal, :money, :fixnum or :float
+    attr_accessor :price_type
 
     # @return [Proc] an optional Proc or Lambda to record application level API request call volume.
     attr_reader :counter_callback
+
+    # Specify if the SSL certificate should be verified, +true+ by default.
+    # It is recommended that all SSL certificates are verified to prevent
+    # man-in-the-middle type attacks.
+    #
+    # One potential reason for temporarily deactivating verification is when
+    # certificates expire, which they periodically do, and you need to take
+    # emergency steps to keep your service running. In such cases you may
+    # see the following error message:
+    #
+    #     SSL_connect returned=1 errno=0 state=SSLv3 read server certificate B: certificate verify failed
+    #
+    # @return [Boolean|String] +true+, +false+ or the path to {http://curl.haxx.se/ca/cacert.pem PEM certificate} file.
+    #
+    # @see http://www.rubyinside.com/how-to-cure-nethttps-risky-default-https-behavior-4010.html
+    # @see http://www.rubyinside.com/nethttp-cheat-sheet-2940.html
+    #
+    attr_accessor :ssl_verify
 
     def initialize
       self.environment = :sandbox
@@ -64,12 +91,16 @@ module EbayTrading
       @price_type = :big_decimal
 
       @username_auth_tokens = {}
+
+      @ssl_verify = true
     end
 
     # Set the eBay environment to either *:sandbox* or *:production*.
     # If the value of +env+ is not recognized :sandbox will be assumed.
+    #
     # @param [Symbol] env :sandbox or :production
     # @return [Symbol] :sandbox or :production
+    #
     def environment=(env)
       @environment = (env.to_s.downcase.strip == 'production') ? :production : :sandbox
       @uri = URI.parse(production? ? URI_PRODUCTION : URI_SANDBOX)
@@ -78,75 +109,24 @@ module EbayTrading
 
     # Determine if this app is targeting eBay's production environment.
     # @return [Boolean] +true+ if production mode, otherwise +false+.
+    #
     def production?
       @environment == :production
     end
 
     # Determine if this app is targeting eBay's sandbox environment.
     # @return [Boolean] +true+ if sandbox mode, otherwise +false+.
+    #
     def sandbox?
       !production?
     end
 
     # Determine if all {#dev_id}, {#app_id} and {#cert_id} have all been set.
     # @return [Boolean] +true+ if dev_id, app_id and cert_id have been defined.
+    #
     def has_keys_set?
       !(dev_id.nil? || app_id.nil? || cert_id.nil?)
     end
-
-    # Set the Dev ID application key.
-    # @param [String] id the developer ID.
-    def dev_id=(id)
-      raise EbayTradingError, 'Dev ID does not appear to be valid' unless application_key_valid?(id)
-      @dev_id = id
-    end
-
-    # Set the App ID application key.
-    # @param [String] id the app ID.
-    def app_id=(id)
-      raise EbayTradingError, 'App ID does not appear to be valid' unless application_key_valid?(id)
-      @app_id = id
-    end
-
-    # Set the Cert ID application key.
-    # @param [String] id the certificate ID.
-    def cert_id=(id)
-      raise EbayTradingError, 'Cert ID does not appear to be valid' unless application_key_valid?(id)
-      @cert_id = id
-    end
-
-    # Set the type to be used to represent price values, with the default being +:big_decimal+.
-    # If performing calculations or analytics it be generally preferable to use integer
-    # based values as it mitigates any rounding/accuracy issues.
-    #
-    # * +*:big_decimal*+ Price values will be parsed into
-    # * +*:float*+ Price values will be parsed into floats.
-    # * +*:fixnum*+ Price values will be converted to +Fixnum+
-    # * +*:integer*+ Price values will be converted to +Fixnum+
-    # * +*:money*+ Price values will be converted to {https://github.com/RubyMoney/money Money} objects, but only if the +Money+ gem is available to your app, otherwise +:fixnum+ will be assumed.
-    #
-    # @param [Symbol] price_type_symbol one of [:float, :fixnum, :integer, :money]
-    # @return [Symbol] the symbol assumed for price values.
-    #
-    def price_type=(price_type_symbol)
-      case price_type_symbol
-        when :fixnum  then @price_type = :fixnum
-        when :integer then @price_type = :fixnum
-        when :float   then @price_type = :float
-        when :money   then @price_type = EbayTrading.is_money_gem_installed? ? :money : :fixnum
-        else
-          @price_type = :big_decimal
-      end
-      @price_type
-    end
-
-    # This is an optional helper method to map eBay user IDs, or other acronyms,
-    # to API auth tokens.
-    # If mapped here the application can later retrieve an auth token
-    # corresponding to an easy to remember string such as 'my_ebay_username'.
-    #
-    # @param [String]
-    #
 
     # Map an eBay API auth token to an easy to remember +String+ key.
     # This could be the corresponding eBay username thus making it easier
@@ -176,6 +156,7 @@ module EbayTrading
     # during each API {Request}.
     #
     # @param [Proc|lambda] callback to be called during each eBay API request call.
+    # @return [Proc]
     #
     def counter=(callback)
       @counter_callback = callback if callback && callback.is_a?(Proc)
@@ -187,6 +168,41 @@ module EbayTrading
     #
     def has_counter?
       @counter_callback != nil
+    end
+
+    def dev_id=(id)
+      raise EbayTradingError, 'Dev ID does not appear to be valid' unless application_key_valid?(id)
+      @dev_id = id
+    end
+
+    def app_id=(id)
+      raise EbayTradingError, 'App ID does not appear to be valid' unless application_key_valid?(id)
+      @app_id = id
+    end
+
+    def cert_id=(id)
+      raise EbayTradingError, 'Cert ID does not appear to be valid' unless application_key_valid?(id)
+      @cert_id = id
+    end
+
+    def price_type=(price_type_symbol)
+      case price_type_symbol
+        when :fixnum  then @price_type = :fixnum
+        when :integer then @price_type = :fixnum
+        when :float   then @price_type = :float
+        when :money   then @price_type = EbayTrading.is_money_gem_installed? ? :money : :fixnum
+        else
+          @price_type = :big_decimal
+      end
+      @price_type
+    end
+
+    def ssl_verify=(verify)
+      if verify
+        @ssl_verify = verify.is_a?(String) ? verify : true
+       else
+        @ssl_verify = false
+      end
     end
 
     #---------------------------------------------------------------------------

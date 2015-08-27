@@ -22,6 +22,7 @@ describe FetchToken do
       config.app_id  = ENV['EBAY_API_APP_ID_SANDBOX']
       config.cert_id = ENV['EBAY_API_CERT_ID_SANDBOX']
       config.ru_name = ENV['EBAY_API_RU_NAME_01_SANDBOX']
+      config.ssl_verify = false
     end
   end
 

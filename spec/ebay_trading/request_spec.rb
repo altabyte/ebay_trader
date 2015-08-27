@@ -19,6 +19,7 @@ describe Request do
       config.app_id  = ENV['EBAY_API_APP_ID_SANDBOX']
       config.cert_id = ENV['EBAY_API_CERT_ID_SANDBOX']
       config.counter = -> { $api_call_count += 1 }
+      config.ssl_verify = false
     end
   end
   let(:auth_token) { @auth_token }

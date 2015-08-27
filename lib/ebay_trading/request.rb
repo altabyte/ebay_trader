@@ -3,6 +3,8 @@ require 'ox'
 require 'rexml/document'
 require 'securerandom'
 require 'YAML'
+require 'openssl'
+require 'base64'
 
 require 'ebay_trading'
 require 'ebay_trading/sax_handler'
@@ -224,8 +226,20 @@ module EbayTrading
       http.read_timeout = http_timeout
 
       if uri.port == 443
+        # http://www.rubyinside.com/nethttp-cheat-sheet-2940.html
         http.use_ssl = true
-        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        verify = EbayTrading.configuration.ssl_verify
+        if verify
+          if verify.is_a?(String)
+            pem = File.read(verify)
+            http.cert = OpenSSL::X509::Certificate.new(pem)
+            http.key = OpenSSL::PKey::RSA.new(pem)
+          end
+          http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+        else
+          http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        end
+
       end
 
       post = Net::HTTP::Post.new(uri.path, headers)
@@ -233,8 +247,13 @@ module EbayTrading
 
       begin
         response = http.start { |http| http.request(post) }
+      rescue OpenSSL::SSL::SSLError => e
+        # SSL_connect returned=1 errno=0 state=SSLv3 read server certificate B: certificate verify failed
+        raise EbayTradingError, e
       rescue Net::ReadTimeout
         raise EbayTradingTimeoutError, "Failed to complete #{call_name} in #{http_timeout} seconds"
+      rescue Exception => e
+        raise EbayTradingError, e
       ensure
         EbayTrading.configuration.counter_callback.call if EbayTrading.configuration.has_counter?
       end
