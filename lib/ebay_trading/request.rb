@@ -2,7 +2,7 @@ require 'net/http'
 require 'ox'
 require 'rexml/document'
 require 'securerandom'
-require 'YAML'
+require 'yaml'
 require 'openssl'
 require 'base64'
 
@@ -209,7 +209,7 @@ module EbayTrading
     # Get a String representation of the XML data hash in JSON notation.
     # @return [String] pretty printed JSON.
     def to_json_s
-      require 'JSON' unless defined? JSON
+      require 'json' unless defined? JSON
       puts JSON.pretty_generate(JSON.parse(@response_hash.to_json))
     end
 
