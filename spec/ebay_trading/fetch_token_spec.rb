@@ -44,9 +44,20 @@ describe FetchToken do
 
     if interactive
       puts 'Launching system browser...'
-      puts "You now have #{login_delay} seconds to MANUALLY log in and grant application access"
+      puts "You now have #{login_delay} seconds to MANUALLY log in and click 'I agree' to grant application access..."
+      puts
+      puts  session_id.sign_in_url
+      puts
 
-      system('open', session_id.sign_in_url)
+      case RUBY_PLATFORM
+        when /linux|arch|sunos|solaris/i
+          system('xdg-open', session_id.sign_in_url)
+        when /darwin/i
+          system('open', session_id.sign_in_url)
+        when /mswin|cygwin|mingw|windows/i
+          system("start #{session_id.sign_in_url}")
+      end
+
       sleep(login_delay)
 
       token = FetchToken.new(session_id)
