@@ -13,13 +13,14 @@ describe Request do
     $api_call_count = 0
 
     EbayTrading.configure do |config|
-      config.environment = :sandbox
+      config.environment  = :sandbox
       config.ebay_site_id = 0 # ebay.com
-      config.dev_id  = ENV['EBAY_API_DEV_ID_SANDBOX']
-      config.app_id  = ENV['EBAY_API_APP_ID_SANDBOX']
-      config.cert_id = ENV['EBAY_API_CERT_ID_SANDBOX']
-      config.counter = -> { $api_call_count += 1 }
-      config.ssl_verify = false
+      config.dev_id       = ENV['EBAY_API_DEV_ID_SANDBOX']
+      config.app_id       = ENV['EBAY_API_APP_ID_SANDBOX']
+      config.cert_id      = ENV['EBAY_API_CERT_ID_SANDBOX']
+      config.auth_token   = @auth_token
+      config.counter      = -> { $api_call_count += 1 }
+      config.ssl_verify   = false
     end
   end
   let(:auth_token) { @auth_token }
@@ -32,7 +33,7 @@ describe Request do
       @previous_api_call_count = $api_call_count
       @tab_width = 2
       @call_name = 'GeteBayOfficialTime'
-      @request = Request.new(@call_name, @auth_token, xml_tab_width: @tab_width)
+      @request = Request.new(@call_name, xml_tab_width: @tab_width)
     end
 
     let(:call_name) { @call_name }
@@ -96,7 +97,7 @@ describe Request do
   describe 'A simple request using GetCategories' do
 
     before :all do
-      @request = Request.new('GetCategories', @auth_token, xml_tab_width: 2) do
+      @request = Request.new('GetCategories', auth_token: @auth_token, xml_tab_width: 2) do
         CategorySiteID 0      # eBay USA
         CategoryParent 19077  # Toys & Hobbies -> Fast Food & Cereal Premiums
         DetailLevel 'ReturnAll'
@@ -127,7 +128,7 @@ describe Request do
 
       before(:all) do
         @call_name = 'InvalidCallName'
-        @request = Request.new(@call_name, @auth_token, xml_tab_width: 2)
+        @request = Request.new(@call_name, xml_tab_width: 2)
       end
 
       let(:call_name) { @call_name }
@@ -172,9 +173,9 @@ describe Request do
       let(:impossible_timeout) { 0.1 } # seconds
 
       it 'raises a EbayTradingTimeoutError' do
-        expect { Request.new('GeteBayOfficialTime', auth_token, http_timeout: impossible_timeout) }.to raise_error EbayTradingTimeoutError
-        expect { Request.new('GeteBayOfficialTime', auth_token, http_timeout: impossible_timeout) }.to raise_error EbayTradingError
-        expect { Request.new('GeteBayOfficialTime', auth_token, http_timeout: impossible_timeout + 10) }.not_to raise_error
+        expect { Request.new('GeteBayOfficialTime', auth_token: auth_token, http_timeout: impossible_timeout) }.to raise_error EbayTradingTimeoutError
+        expect { Request.new('GeteBayOfficialTime', auth_token: auth_token, http_timeout: impossible_timeout) }.to raise_error EbayTradingError
+        expect { Request.new('GeteBayOfficialTime', auth_token: auth_token, http_timeout: impossible_timeout + 10) }.not_to raise_error
       end
     end
   end

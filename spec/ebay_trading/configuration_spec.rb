@@ -13,13 +13,13 @@ describe Configuration do
 
     it { is_expected.not_to have_keys_set }
     it { expect(config.ebay_site_id).to eq(0) }
-    it { expect(config.ebay_api_version).to be >= 933 }
+    it { expect(config.ebay_api_version).to be >= 935 }
     it { expect(config.http_timeout).to eq(30) }
     it { expect(config.price_type).to eq(:big_decimal) }
 
   end
 
-  context 'when specifying the environment' do
+  describe 'setting sandbox or production environment' do
 
     it { is_expected.to respond_to 'environment=' }
     it { is_expected.to respond_to 'sandbox?' }
@@ -54,7 +54,7 @@ describe Configuration do
   end
 
 
-  context 'when getting the URI' do
+  describe 'URI' do
 
     subject(:uri) { config.uri }
     it { is_expected.not_to be_nil }
@@ -74,7 +74,7 @@ describe Configuration do
   end
 
 
-  context 'when setting application keys' do
+  describe 'setting application keys' do
 
     it { is_expected.not_to have_keys_set }
 
@@ -94,27 +94,47 @@ describe Configuration do
   end
 
 
-  context 'when mapping auth tokens to eBay usernames' do
+  describe 'Auth Tokens' do
 
-    context 'Before any auth tokens are registered' do
-      it { expect(config.auth_token_for('unregistered')).to be_nil }
+    describe 'default' do
+
+      context 'when no default specified' do
+        it { expect(config.auth_token).to be_nil }
+      end
+
+      context 'after providing a default value' do
+        let(:auth_token) { '***********_some_really_long_ebay_api_auth_token_***********' }
+        before { config.auth_token = auth_token }
+
+        it { expect(config.auth_token).not_to be_nil }
+        it { expect(config.auth_token).to eq(auth_token) }
+        it { expect(config.auth_token_for(Configuration::DEFAULT_AUTH_TOKEN_KEY)).to eq(auth_token) }
+      end
     end
 
-    context 'After storing an auth token' do
-      let(:key) { 'my_ebay_username' }
-      let(:auth_token) { '***********_some_really_long_ebay_api_auth_token_***********' }
 
-      before { config.store_auth_token(key, auth_token) }
+    describe 'Mapping auth tokens to eBay usernames' do
 
-      it { expect(config.auth_token_for('unregistered')).to be_nil }
-      it { expect(config.auth_token_for(key)).to eq(auth_token) }
-      it { expect(config.auth_token_for(key.upcase)).to eq(auth_token) }
-      it { expect(config.auth_token_for(key.to_sym)).to eq(auth_token) }
+      context 'Before any auth tokens are registered' do
+        it { expect(config.auth_token_for('unregistered')).to be_nil }
+      end
+
+      context 'After storing an auth token' do
+        let(:key) { 'my_ebay_username' }
+        let(:auth_token) { '***********_some_really_long_ebay_api_auth_token_***********' }
+
+        before { config.map_auth_token(key, auth_token) }
+
+        it { expect(config.auth_token_for('unregistered')).to be_nil }
+        it { expect(config.auth_token_for(key)).to eq(auth_token) }
+        it { expect(config.auth_token_for(key.upcase)).to eq(auth_token) }
+        it { expect(config.auth_token_for(key.to_sym)).to eq(auth_token) }
+      end
     end
   end
 
 
-  context 'When using the counter' do
+  describe 'The counter' do
     context 'Before counter is set' do
       it { expect(config).not_to have_counter }
     end

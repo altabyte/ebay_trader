@@ -27,7 +27,7 @@ module EbayTrading
     def initialize(args = {})
       @ru_name = (args[:ru_name] || EbayTrading.configuration.ru_name).freeze
 
-      super(CALL_NAME, nil, args) do
+      super(CALL_NAME, args) do
         RuName ru_name
       end
     end

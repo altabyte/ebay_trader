@@ -12,6 +12,8 @@ module EbayTrading
     # @see https://ebaydts.com/eBayKBDetails?KBid=429
     URI_SANDBOX = 'https://api.sandbox.ebay.com/ws/api.dll'
 
+    DEFAULT_AUTH_TOKEN_KEY = '__DEFAULT__'
+
     # The Dev ID application key.
     # @return [String] Application keys Developer ID.
     attr_accessor :dev_id
@@ -85,7 +87,7 @@ module EbayTrading
       @cert_id = nil
 
       @ebay_site_id = 0
-      @ebay_api_version = 933   # 2015-Jul-24
+      @ebay_api_version = 935   # 2015-Jul-24
       @http_timeout = 30        # seconds
 
       @price_type = :big_decimal
@@ -128,6 +130,21 @@ module EbayTrading
       !(dev_id.nil? || app_id.nil? || cert_id.nil?)
     end
 
+    # Optionally set a default authentication token to be used in API requests.
+    #
+    # @param [String] auth_token the eBay auth token for the user making requests.
+    #
+    def auth_token=(auth_token)
+      map_auth_token(DEFAULT_AUTH_TOKEN_KEY, auth_token)
+    end
+
+    # Get the default authentication token, or +nil+ if not set.
+    # @return [String] the default auth token.
+    #
+    def auth_token
+      auth_token_for(DEFAULT_AUTH_TOKEN_KEY)
+    end
+
     # Map an eBay API auth token to an easy to remember +String+ key.
     # This could be the corresponding eBay username thus making it easier
     # to select the user auth token from a UI list or command line argument.
@@ -135,14 +152,14 @@ module EbayTrading
     # @param [String] key auth_token identifier, typically an eBay username.
     # @param [String] auth_token an eBay API authentication token.
     #
-    def store_auth_token(key, auth_token)
+    def map_auth_token(key, auth_token)
       @username_auth_tokens[secure_auth_token_key(key)] = auth_token
     end
 
     # Get the eBay API auth token matching the given +key+, or +nil+ if
     # not found.
     #
-    # @return [String] the corresponding auth token, or nil.
+    # @return [String] the corresponding auth token, or +nil+.
     #
     def auth_token_for(key)
       @username_auth_tokens[secure_auth_token_key(key)]

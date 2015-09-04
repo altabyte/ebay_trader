@@ -7,19 +7,14 @@ include EbayTrading
 describe Request do
   include FileToString # Module located in spec_helper.rb
 
-  # Actually, configuration should not be necessary for local XML processing?
-  before :all do
-    @auth_token = ENV['EBAY_API_AUTH_TOKEN_TEST_USER_1']
-  end
-  let(:auth_token) { @auth_token }
-
   before do
     EbayTrading.configure do |config|
-      config.environment = :sandbox
+      config.environment  = :sandbox
       config.ebay_site_id = 0 # ebay.com
-      config.dev_id  = ENV['EBAY_API_DEV_ID_SANDBOX']
-      config.app_id  = ENV['EBAY_API_APP_ID_SANDBOX']
-      config.cert_id = ENV['EBAY_API_CERT_ID_SANDBOX']
+      config.dev_id       = ENV['EBAY_API_DEV_ID_SANDBOX']
+      config.app_id       = ENV['EBAY_API_APP_ID_SANDBOX']
+      config.cert_id      = ENV['EBAY_API_CERT_ID_SANDBOX']
+      config.auth_token   = ENV['EBAY_API_AUTH_TOKEN_TEST_USER_1']
     end
   end
 
@@ -36,7 +31,7 @@ describe Request do
     it { expect(response_xml).not_to be_blank }
 
     subject(:request) do
-      Request.new('GetCategories', @auth_token, xml_response: response_xml) do
+      Request.new('GetCategories', xml_response: response_xml) do
         CategorySiteID 0      # eBay USA
         CategoryParent 19077  # Toys & Hobbies -> Fast Food & Cereal Premiums
         DetailLevel 'ReturnAll'
@@ -85,7 +80,7 @@ describe Request do
     end
 
     subject(:request) do
-      Request.new('GeteBayDetails', @auth_token, xml_response: response_xml, xml_tab_width: 2) do
+      Request.new('GeteBayDetails', xml_response: response_xml, xml_tab_width: 2) do
         DetailName 'ListingStartPriceDetails'
       end
     end
@@ -112,7 +107,7 @@ describe Request do
     end
 
     subject(:request) do
-      Request.new('GeteBayDetails', @auth_token, skip_type_casting: 'detail_version', xml_response: response_xml, xml_tab_width: 2) do
+      Request.new('GeteBayDetails', skip_type_casting: 'detail_version', xml_response: response_xml, xml_tab_width: 2) do
         DetailName 'ListingStartPriceDetails'
       end
     end
@@ -164,7 +159,7 @@ describe Request do
     end
 
     subject(:request) do
-      Request.new('GeteBayDetails', @auth_token, skip_type_casting: 'detail_version', xml_response: response_xml, xml_tab_width: 2) do
+      Request.new('GeteBayDetails', skip_type_casting: 'detail_version', xml_response: response_xml, xml_tab_width: 2) do
         DetailName 'ListingStartPriceDetails'
       end
     end
@@ -185,7 +180,7 @@ describe Request do
     end
 
     subject(:request) do
-      Request.new('GeteBayDetails', @auth_token, skip_type_casting: 'detail_version', xml_response: response_xml, xml_tab_width: 2) do
+      Request.new('GeteBayDetails', skip_type_casting: 'detail_version', xml_response: response_xml, xml_tab_width: 2) do
         DetailName 'ListingStartPriceDetails'
       end
     end

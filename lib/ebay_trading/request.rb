@@ -36,9 +36,10 @@ module EbayTrading
     #
     # @param [String] call_name the name of the API call, for example 'GeteBayOfficialTime'.
     #
-    # @param [String] auth_token the eBay Auth Token for the user submitting this request.
-    #
     # @param [Hash] args optional configuration values for this request.
+    #
+    # @option args [String] :auth_token the eBay Auth Token for the user submitting this request.
+    #                       If not defined the value of {Configuration#auth_token} will be assumed.
     #
     # @option args [Fixnum] :ebay_site_id Override the default eBay site ID in {Configuration#ebay_site_id}
     #
@@ -90,9 +91,12 @@ module EbayTrading
     #
     # @raise [EbayTradingTimeoutError] if the HTTP call times out.
     #
-    def initialize(call_name, auth_token, args = {}, &block)
+    def initialize(call_name, args = {}, &block)
       time = Time.now
       @call_name  = call_name.freeze
+
+      auth_token = %w"GetSessionID FetchToken GetTokenStatus RevokeToken".include?(call_name) ?
+                      nil : (args[:auth_token] || EbayTrading.configuration.auth_token)
       @auth_token = auth_token.freeze
 
       @ebay_site_id = (args[:ebay_site_id] || EbayTrading.configuration.ebay_site_id).to_i

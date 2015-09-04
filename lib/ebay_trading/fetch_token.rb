@@ -23,7 +23,7 @@ module EbayTrading
     def initialize(session_id, args = {})
       session_id = session_id.id if session_id.is_a?(SessionID)
       @session_id = session_id.freeze
-      super(CALL_NAME, nil, args) do
+      super(CALL_NAME, args) do
         SessionID session_id
       end
     end
