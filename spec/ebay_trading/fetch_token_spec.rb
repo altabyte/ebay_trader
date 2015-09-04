@@ -8,7 +8,7 @@ describe FetchToken do
   # Set +interactive+ to +true+ to launch the system browser,
   # requiring MANUAL input of the test user eBay ID and password.
   # If +false+ only the SessionID aspect will be tested.
-  let(:interactive) { true }
+  let(:interactive) { false }
 
   # This is how many seconds you have to manually log into the authentication page
   # and grant application access.

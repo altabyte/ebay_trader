@@ -1,3 +1,4 @@
+require 'active_support/gzip'
 require 'net/http'
 require 'ox'
 require 'rexml/document'
@@ -264,7 +265,11 @@ module EbayTrading
       # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
       raise EbayTradingError, "HTTP Response Code: #{http_response_code}" unless http_response_code.between?(200, 299)
 
-      @xml_response = response.body
+      if response['Content-Encoding'] == 'gzip'
+        @xml_response = ActiveSupport::Gzip.decompress(response.body)
+      else
+        @xml_response = response.body
+      end
     end
 
     # Parse the given XML using {SaxHandler} and return a nested Hash.
@@ -290,7 +295,8 @@ module EbayTrading
           'X-EBAY-API-COMPATIBILITY-LEVEL' => "#{EbayTrading.configuration.ebay_api_version}",
           'X-EBAY-API-SITEID' => "#{ebay_site_id}",
           'X-EBAY-API-CALL-NAME' => call_name,
-          'Content-Type' => 'text/xml'
+          'Content-Type' => 'text/xml',
+          'Accept-Encoding' => 'gzip'
       }
       xml = xml_request
       headers.merge!({'Content-Length' => "#{xml.length}"}) if xml && !xml.strip.empty?
