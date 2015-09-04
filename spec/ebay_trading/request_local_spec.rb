@@ -8,14 +8,7 @@ describe Request do
   include FileToString # Module located in spec_helper.rb
 
   before do
-    EbayTrading.configure do |config|
-      config.environment  = :sandbox
-      config.ebay_site_id = 0 # ebay.com
-      config.dev_id       = ENV['EBAY_API_DEV_ID_SANDBOX']
-      config.app_id       = ENV['EBAY_API_APP_ID_SANDBOX']
-      config.cert_id      = ENV['EBAY_API_CERT_ID_SANDBOX']
-      config.auth_token   = ENV['EBAY_API_AUTH_TOKEN_TEST_USER_1']
-    end
+    configure_api_sandbox
   end
 
 

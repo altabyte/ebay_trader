@@ -6,24 +6,16 @@ describe Request do
 
   # Get auth token and application key values from environmental variables.
   before :all do
-    @auth_token = ENV['EBAY_API_AUTH_TOKEN_TEST_USER_1']
+    configure_api_sandbox
 
     # Use a global variable to store the API call counter.
     # In a production environment you would probably want to INCR a Redis DB variable.
     $api_call_count = 0
-
     EbayTrading.configure do |config|
-      config.environment  = :sandbox
-      config.ebay_site_id = 0 # ebay.com
-      config.dev_id       = ENV['EBAY_API_DEV_ID_SANDBOX']
-      config.app_id       = ENV['EBAY_API_APP_ID_SANDBOX']
-      config.cert_id      = ENV['EBAY_API_CERT_ID_SANDBOX']
-      config.auth_token   = @auth_token
-      config.counter      = -> { $api_call_count += 1 }
-      config.ssl_verify   = false
+      config.counter = -> { $api_call_count += 1 }
     end
   end
-  let(:auth_token) { @auth_token }
+  let(:auth_token) { EbayTrading.configuration.auth_token }
 
   it { expect($api_call_count).to eq(0) }
 
