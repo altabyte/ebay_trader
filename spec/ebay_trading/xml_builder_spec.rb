@@ -1,6 +1,6 @@
-require 'ebay_trading/xml_builder'
+require 'ebay_trader/xml_builder'
 
-include EbayTrading
+include EbayTrader
 
 describe XMLBuilder do
 

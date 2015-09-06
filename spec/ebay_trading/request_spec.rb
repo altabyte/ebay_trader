@@ -1,6 +1,6 @@
-require 'ebay_trading/request'
+require 'ebay_trader/request'
 
-include EbayTrading
+include EbayTrader
 
 describe Request do
 
@@ -11,11 +11,11 @@ describe Request do
     # Use a global variable to store the API call counter.
     # In a production environment you would probably want to INCR a Redis DB variable.
     $api_call_count = 0
-    EbayTrading.configure do |config|
+    EbayTrader.configure do |config|
       config.counter = -> { $api_call_count += 1 }
     end
   end
-  let(:auth_token) { EbayTrading.configuration.auth_token }
+  let(:auth_token) { EbayTrader.configuration.auth_token }
 
   it { expect($api_call_count).to eq(0) }
 
@@ -44,11 +44,11 @@ describe Request do
     end
 
     it { expect(request.http_response_code).to eq(200) }
-    it { expect(request.http_timeout).to eq(EbayTrading.configuration.http_timeout) }
+    it { expect(request.http_timeout).to eq(EbayTrader.configuration.http_timeout) }
     it { expect(request.timestamp).not_to be_nil }
     it { expect(request.timestamp).to be_a(Time) }
     it { expect(request.call_name).to eq(call_name) }
-    it { expect(request.ebay_site_id).to eq(EbayTrading.configuration.ebay_site_id) }
+    it { expect(request.ebay_site_id).to eq(EbayTrader.configuration.ebay_site_id) }
     it { expect(request.response_hash).to be_a(Hash) }
     it { expect(request.response_hash).to be_a(HashWithIndifferentAccess) }
     it { expect(request.response_hash).to respond_to :deep_find }
@@ -164,9 +164,9 @@ describe Request do
 
       let(:impossible_timeout) { 0.1 } # seconds
 
-      it 'raises a EbayTradingTimeoutError' do
-        expect { Request.new('GeteBayOfficialTime', auth_token: auth_token, http_timeout: impossible_timeout) }.to raise_error EbayTradingTimeoutError
-        expect { Request.new('GeteBayOfficialTime', auth_token: auth_token, http_timeout: impossible_timeout) }.to raise_error EbayTradingError
+      it 'raises a EbayTraderTimeoutError' do
+        expect { Request.new('GeteBayOfficialTime', auth_token: auth_token, http_timeout: impossible_timeout) }.to raise_error EbayTraderTimeoutError
+        expect { Request.new('GeteBayOfficialTime', auth_token: auth_token, http_timeout: impossible_timeout) }.to raise_error EbayTraderError
         expect { Request.new('GeteBayOfficialTime', auth_token: auth_token, http_timeout: impossible_timeout + 10) }.not_to raise_error
       end
     end

@@ -1,7 +1,7 @@
-require 'ebay_trading/fetch_token'
-require 'ebay_trading/session_id'
+require 'ebay_trader/fetch_token'
+require 'ebay_trader/session_id'
 
-include EbayTrading
+include EbayTrader
 
 describe FetchToken do
 

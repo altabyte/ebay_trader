@@ -1,8 +1,8 @@
 require 'json'
 require 'ox'
-require 'ebay_trading/sax_handler'
+require 'ebay_trader/sax_handler'
 
-include EbayTrading
+include EbayTrader
 
 describe SaxHandler do
 
@@ -71,7 +71,7 @@ describe SaxHandler do
 
     context 'Default - BigDecimal' do
 
-      before { EbayTrading.configuration.price_type = nil } # Defaults to BigDecimal
+      before { EbayTrader.configuration.price_type = nil } # Defaults to BigDecimal
 
       subject(:hash) do
         handler = SaxHandler.new
@@ -79,7 +79,7 @@ describe SaxHandler do
         handler.to_hash
       end
 
-      it { expect(EbayTrading.configuration.price_type).to eq(:big_decimal) }
+      it { expect(EbayTrader.configuration.price_type).to eq(:big_decimal) }
       it { expect(start_price).to be_a(BigDecimal) }
       it { expect(start_price).to eq(BigDecimal.new('24.99')) }
 
@@ -91,7 +91,7 @@ describe SaxHandler do
 
     context 'Float' do
 
-      before { EbayTrading.configuration.price_type = :float }
+      before { EbayTrader.configuration.price_type = :float }
 
       subject(:hash) do
         handler = SaxHandler.new
@@ -99,7 +99,7 @@ describe SaxHandler do
         handler.to_hash
       end
 
-      it { expect(EbayTrading.configuration.price_type).to eq(:float) }
+      it { expect(EbayTrader.configuration.price_type).to eq(:float) }
       it { expect(start_price).to be_a(Float) }
       it { expect(start_price).to eq(24.99) }
 
@@ -111,7 +111,7 @@ describe SaxHandler do
 
     context 'Fixnum' do
 
-      before { EbayTrading.configuration.price_type = :fixnum }
+      before { EbayTrader.configuration.price_type = :fixnum }
 
       subject(:hash) do
         handler = SaxHandler.new
@@ -119,7 +119,7 @@ describe SaxHandler do
         handler.to_hash
       end
 
-      it { expect(EbayTrading.configuration.price_type).to eq(:fixnum) }
+      it { expect(EbayTrader.configuration.price_type).to eq(:fixnum) }
       it { expect(start_price).to be_a(Fixnum) }
       it { expect(start_price).to eq(2499) }
 

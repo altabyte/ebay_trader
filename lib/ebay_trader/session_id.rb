@@ -1,7 +1,7 @@
 require 'cgi'
-require 'ebay_trading/request'
+require 'ebay_trader/request'
 
-module EbayTrading
+module EbayTrader
 
   # Request a session ID from the eBay API.
   #
@@ -25,7 +25,7 @@ module EbayTrading
     #                       which should be defined in {Configuration#ru_name}.
     #
     def initialize(args = {})
-      @ru_name = (args[:ru_name] || EbayTrading.configuration.ru_name).freeze
+      @ru_name = (args[:ru_name] || EbayTrader.configuration.ru_name).freeze
 
       super(CALL_NAME, args) do
         RuName ru_name
@@ -45,7 +45,7 @@ module EbayTrading
     # @return [String] the sign-in URL.
     #
     def sign_in_url(ruparams = {})
-      url = EbayTrading.configuration.production? ? 'https://signin.ebay.com' : 'https://signin.sandbox.ebay.com'
+      url = EbayTrader.configuration.production? ? 'https://signin.ebay.com' : 'https://signin.sandbox.ebay.com'
       url << '/ws/eBayISAPI.dll?SignIn'
       url << "&runame=#{url_encode ru_name}"
       url << "&SessID=#{url_encode id}"

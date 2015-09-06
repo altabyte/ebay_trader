@@ -1,9 +1,9 @@
 require 'spec_helper'
 
-describe EbayTrading do
+describe EbayTrader do
 
   it 'has a version number' do
-    expect(EbayTrading::VERSION).not_to be nil
+    expect(EbayTrader::VERSION).not_to be nil
   end
 
 end

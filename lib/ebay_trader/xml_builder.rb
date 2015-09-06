@@ -1,4 +1,4 @@
-module EbayTrading
+module EbayTrader
   class XMLBuilder
 
     attr_reader :context, :xml, :depth, :tab_width

@@ -1,8 +1,8 @@
 require 'active_support/time'
-require 'ebay_trading/request'
-require 'ebay_trading/session_id'
+require 'ebay_trader/request'
+require 'ebay_trader/session_id'
 
-module EbayTrading
+module EbayTrader
 
   # Fetch an eBay user authentication token using a {SessionID} value.
   #

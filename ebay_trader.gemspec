@@ -1,11 +1,11 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'ebay_trading/version'
+require 'ebay_trader/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = 'ebay-trading'
-  spec.version       = EbayTrading::VERSION
+  spec.name          = 'ebay-trader'
+  spec.version       = EbayTrader::VERSION
   spec.authors       = ['Rob Graham']
   spec.email         = ['altabyte@gmail.com']
 

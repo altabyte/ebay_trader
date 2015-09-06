@@ -7,11 +7,11 @@ require 'yaml'
 require 'openssl'
 require 'base64'
 
-require 'ebay_trading'
-require 'ebay_trading/sax_handler'
-require 'ebay_trading/xml_builder'
+require 'ebay_trader'
+require 'ebay_trader/sax_handler'
+require 'ebay_trader/xml_builder'
 
-module EbayTrading
+module EbayTrader
 
   class Request
 
@@ -87,20 +87,20 @@ module EbayTrading
     #
     # @yieldreturn [XMLBuilder] the same XML builder originally provided by the block.
     #
-    # @raise [EbayTradingError] if the API call fails.
+    # @raise [EbayTraderError] if the API call fails.
     #
-    # @raise [EbayTradingTimeoutError] if the HTTP call times out.
+    # @raise [EbayTraderTimeoutError] if the HTTP call times out.
     #
     def initialize(call_name, args = {}, &block)
       time = Time.now
       @call_name  = call_name.freeze
 
       auth_token = %w"GetSessionID FetchToken GetTokenStatus RevokeToken".include?(call_name) ?
-                      nil : (args[:auth_token] || EbayTrading.configuration.auth_token)
+                      nil : (args[:auth_token] || EbayTrader.configuration.auth_token)
       @auth_token = auth_token.freeze
 
-      @ebay_site_id = (args[:ebay_site_id] || EbayTrading.configuration.ebay_site_id).to_i
-      @http_timeout = (args[:http_timeout] || EbayTrading.configuration.http_timeout).to_f
+      @ebay_site_id = (args[:ebay_site_id] || EbayTrader.configuration.ebay_site_id).to_i
+      @http_timeout = (args[:http_timeout] || EbayTrader.configuration.http_timeout).to_f
       @xml_tab_width = (args[:xml_tab_width] || 0).to_i
 
       @xml_response = args[:xml_response] || ''
@@ -133,7 +133,7 @@ module EbayTrading
 
       parsed_hash = parse(xml_response)
       root_key = parsed_hash.keys.first
-      raise EbayTradingError, "Response '#{root_key}' does not match call name" unless root_key.gsub('_', '').eql?("#{call_name}Response".downcase)
+      raise EbayTraderError, "Response '#{root_key}' does not match call name" unless root_key.gsub('_', '').eql?("#{call_name}Response".downcase)
 
       @response_hash = parsed_hash[root_key]
       @response_hash.freeze
@@ -223,9 +223,9 @@ module EbayTrading
 
     # Post the xml_request to eBay and record the xml_response.
     def submit
-      raise EbayTradingError, 'Cannot post an eBay API request before application keys have been set' unless EbayTrading.configuration.has_keys_set?
+      raise EbayTraderError, 'Cannot post an eBay API request before application keys have been set' unless EbayTrader.configuration.has_keys_set?
 
-      uri = EbayTrading.configuration.uri
+      uri = EbayTrader.configuration.uri
 
       http = Net::HTTP.new(uri.host, uri.port)
       http.read_timeout = http_timeout
@@ -233,7 +233,7 @@ module EbayTrading
       if uri.port == 443
         # http://www.rubyinside.com/nethttp-cheat-sheet-2940.html
         http.use_ssl = true
-        verify = EbayTrading.configuration.ssl_verify
+        verify = EbayTrader.configuration.ssl_verify
         if verify
           if verify.is_a?(String)
             pem = File.read(verify)
@@ -254,20 +254,20 @@ module EbayTrading
         response = http.start { |http| http.request(post) }
       rescue OpenSSL::SSL::SSLError => e
         # SSL_connect returned=1 errno=0 state=SSLv3 read server certificate B: certificate verify failed
-        raise EbayTradingError, e
+        raise EbayTraderError, e
       rescue Net::ReadTimeout
-        raise EbayTradingTimeoutError, "Failed to complete #{call_name} in #{http_timeout} seconds"
+        raise EbayTraderTimeoutError, "Failed to complete #{call_name} in #{http_timeout} seconds"
       rescue Exception => e
-        raise EbayTradingError, e
+        raise EbayTraderError, e
       ensure
-        EbayTrading.configuration.counter_callback.call if EbayTrading.configuration.has_counter?
+        EbayTrader.configuration.counter_callback.call if EbayTrader.configuration.has_counter?
       end
 
       @http_response_code = response.code.to_i.freeze
 
       # If the call was successful it should have a response code starting with '2'
       # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
-      raise EbayTradingError, "HTTP Response Code: #{http_response_code}" unless http_response_code.between?(200, 299)
+      raise EbayTraderError, "HTTP Response Code: #{http_response_code}" unless http_response_code.between?(200, 299)
 
       if response['Content-Encoding'] == 'gzip'
         @xml_response = ActiveSupport::Gzip.decompress(response.body)
@@ -296,7 +296,7 @@ module EbayTrading
     #
     def headers
       headers = {
-          'X-EBAY-API-COMPATIBILITY-LEVEL' => "#{EbayTrading.configuration.ebay_api_version}",
+          'X-EBAY-API-COMPATIBILITY-LEVEL' => "#{EbayTrader.configuration.ebay_api_version}",
           'X-EBAY-API-SITEID' => "#{ebay_site_id}",
           'X-EBAY-API-CALL-NAME' => call_name,
           'Content-Type' => 'text/xml',
@@ -309,9 +309,9 @@ module EbayTrading
       # (these calls are: GetSessionID, FetchToken, GetTokenStatus, and RevokeToken).
       # In all other calls, these value are ignored..
       if %w"GetSessionID FetchToken GetTokenStatus RevokeToken".include?(call_name)
-        headers.merge!({'X-EBAY-API-DEV-NAME'  => EbayTrading.configuration.dev_id})
-        headers.merge!({'X-EBAY-API-APP-NAME'  => EbayTrading.configuration.app_id})
-        headers.merge!({'X-EBAY-API-CERT-NAME' => EbayTrading.configuration.cert_id})
+        headers.merge!({'X-EBAY-API-DEV-NAME'  => EbayTrader.configuration.dev_id})
+        headers.merge!({'X-EBAY-API-APP-NAME'  => EbayTrader.configuration.app_id})
+        headers.merge!({'X-EBAY-API-CERT-NAME' => EbayTrader.configuration.cert_id})
       end
       headers
     end

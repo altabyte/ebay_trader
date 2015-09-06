@@ -1,8 +1,8 @@
 # Tests performed on locally cached XML response files.
 
-require 'ebay_trading/request'
+require 'ebay_trader/request'
 
-include EbayTrading
+include EbayTrader
 
 describe Request do
   include FileToString # Module located in spec_helper.rb
@@ -40,11 +40,11 @@ describe Request do
     it { is_expected.not_to have_errors }
     it { is_expected.not_to have_warnings }
     it { expect(request.http_response_code).to eq(200) }
-    it { expect(request.http_timeout).to eq(EbayTrading.configuration.http_timeout) }
+    it { expect(request.http_timeout).to eq(EbayTrader.configuration.http_timeout) }
     it { expect(request.timestamp).not_to be_nil }
     it { expect(request.timestamp).to be_a(Time) }
     it { expect(request.call_name).to eq(call_name) }
-    it { expect(request.ebay_site_id).to eq(EbayTrading.configuration.ebay_site_id) }
+    it { expect(request.ebay_site_id).to eq(EbayTrader.configuration.ebay_site_id) }
     it { expect(request.response_hash).to be_a(Hash) }
     it { expect(request.skip_type_casting).to be_a(Array) }
     it { expect(request.skip_type_casting).to be_empty }
@@ -145,7 +145,7 @@ describe Request do
 
   context 'When configuration price_type is set to :integer' do
 
-    before { EbayTrading.configure { |config| config.price_type = :integer } }
+    before { EbayTrader.configure { |config| config.price_type = :integer } }
 
     let(:response_xml) do
       self.file_to_string("#{__dir__}/xml_responses/get_ebay_details/listing_start_price_details.xml")
@@ -166,7 +166,7 @@ describe Request do
 
   context 'When configuration price_type is set to :money' do
 
-    before { EbayTrading.configure { |config| config.price_type = :money } }
+    before { EbayTrader.configure { |config| config.price_type = :money } }
 
     let(:response_xml) do
       self.file_to_string("#{__dir__}/xml_responses/get_ebay_details/listing_start_price_details.xml")
@@ -181,7 +181,7 @@ describe Request do
     let(:details) { request.response_hash[:listing_start_price_details].last }
 
     it 'should expect a Money price if Money gem installed, otherwise Fixnum' do
-      if EbayTrading.is_money_gem_installed?
+      if EbayTrader.is_money_gem_installed?
         expect(details[:start_price]).to be_a(Money)
         expect(details[:start_price]).to eq(Money.new(99, 'USD'))
         expect(details).not_to have_key(:start_price_currency_id)

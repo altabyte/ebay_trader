@@ -1,9 +1,9 @@
 require 'securerandom'
 
-require 'ebay_trading'
-require 'ebay_trading/configuration'
+require 'ebay_trader'
+require 'ebay_trader/configuration'
 
-include EbayTrading
+include EbayTrader
 
 describe Configuration do
 
@@ -87,9 +87,9 @@ describe Configuration do
 
     it 'should raise exception to invalid keys' do
       is_expected.not_to have_keys_set
-      expect { config.dev_id  = 'INVALID' }.to raise_error EbayTradingError
-      expect { config.app_id  = 'INVALID' }.to raise_error EbayTradingError
-      expect { config.cert_id = 'INVALID' }.to raise_error EbayTradingError
+      expect { config.dev_id  = 'INVALID' }.to raise_error EbayTraderError
+      expect { config.app_id  = 'INVALID' }.to raise_error EbayTraderError
+      expect { config.cert_id = 'INVALID' }.to raise_error EbayTraderError
     end
   end
 

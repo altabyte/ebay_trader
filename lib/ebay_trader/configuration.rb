@@ -1,7 +1,7 @@
 require 'digest'
 require 'uri'
 
-module EbayTrading
+module EbayTrader
   class Configuration
 
     # URL for eBay's Trading API *Production* environment.
@@ -30,7 +30,7 @@ module EbayTrading
 
     # @return [Fixnum] The default eBay site ID to use in API requests, default is 0.
     # This can be overridden by including an ebay_site_id value in the list of
-    # arguments to {EbayTrading::Request#initialize}.
+    # arguments to {EbayTrader::Request#initialize}.
     # @see https://developer.ebay.com/DevZone/merchandising/docs/Concepts/SiteIDToGlobalID.html
     attr_accessor :ebay_site_id
 
@@ -188,17 +188,17 @@ module EbayTrading
     end
 
     def dev_id=(id)
-      raise EbayTradingError, 'Dev ID does not appear to be valid' unless application_key_valid?(id)
+      raise EbayTraderError, 'Dev ID does not appear to be valid' unless application_key_valid?(id)
       @dev_id = id
     end
 
     def app_id=(id)
-      raise EbayTradingError, 'App ID does not appear to be valid' unless application_key_valid?(id)
+      raise EbayTraderError, 'App ID does not appear to be valid' unless application_key_valid?(id)
       @app_id = id
     end
 
     def cert_id=(id)
-      raise EbayTradingError, 'Cert ID does not appear to be valid' unless application_key_valid?(id)
+      raise EbayTraderError, 'Cert ID does not appear to be valid' unless application_key_valid?(id)
       @cert_id = id
     end
 
@@ -207,7 +207,7 @@ module EbayTrading
         when :fixnum  then @price_type = :fixnum
         when :integer then @price_type = :fixnum
         when :float   then @price_type = :float
-        when :money   then @price_type = EbayTrading.is_money_gem_installed? ? :money : :fixnum
+        when :money   then @price_type = EbayTrader.is_money_gem_installed? ? :money : :fixnum
         else
           @price_type = :big_decimal
       end

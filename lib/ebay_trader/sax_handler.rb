@@ -2,7 +2,7 @@
 require 'active_support/core_ext/string'
 require 'hash_with_indifferent_access'
 
-module EbayTrading
+module EbayTrader
   class SaxHandler
 
     attr_accessor :stack
@@ -54,12 +54,12 @@ module EbayTrading
       if @attributes.key?('CurrencyID')
         currency = @attributes.delete('CurrencyID')
         value = BigDecimal.new(value)
-        if EbayTrading.configuration.price_type == :money && EbayTrading.is_money_gem_installed?
+        if EbayTrader.configuration.price_type == :money && EbayTrader.is_money_gem_installed?
           value = Money.new((value * 100).round.to_i, currency)
         else
           @attributes['Currency'] = currency
-          value = value.to_f if EbayTrading.configuration.price_type == :float
-          value = (value * 100).round.to_i if EbayTrading.configuration.price_type == :fixnum
+          value = value.to_f if EbayTrader.configuration.price_type == :float
+          value = (value * 100).round.to_i if EbayTrader.configuration.price_type == :fixnum
         end
       end
 
