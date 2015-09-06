@@ -141,24 +141,37 @@ describe Request do
       it { expect(request.deep_find(:errors).count).to eq(1) }
 
       it { is_expected.to have_errors }
+      it { is_expected.to have_errors_or_warnings }
       it { expect(request.errors).to be_a(Array) }
       it { expect(request.errors.count).to eq(1) }
-      it { expect(request.errors.first).to be_a(Hash) }
-      it { expect(request.errors.first).to have_key(:severity_code) }
-      it { expect(request.errors.first[:severity_code]).to eq('Error') }
-      it { expect(request.errors.first).to have_key(:error_code) }
-      it { expect(request.errors.first[:error_code]).to eq(2) }
-      it { expect(request.errors.first).to have_key(:short_message) }
-      it { expect(request.errors.first[:short_message]).to eq('Unsupported API call.') }
+      it { expect(request.errors.first).to be_a(Struct) }
+
+      it 'should have a severity_code' do
+        expect(request.errors.first).to respond_to(:severity_code)
+        expect(request.errors.first.severity_code).to eq('Error')
+        expect(request.errors.first[:severity_code]).to eq('Error')
+      end
+
+      it 'should have an error code' do
+        expect(request.errors.first).to respond_to(:error_code)
+        expect(request.errors.first.error_code).to eq(2)
+        expect(request.errors.first[:error_code]).to eq(2)
+      end
+
+      it 'should have a short message' do
+        expect(request.errors.first).to respond_to(:short_message)
+        expect(request.errors.first.short_message).to eq('Unsupported API call.')
+        expect(request.errors.first[:short_message]).to eq('Unsupported API call.')
+      end
 
       it { is_expected.not_to have_warnings }
       it { expect(request.warnings).to be_a(Array) }
       it { expect(request.warnings).to be_empty }
 
-
       it { puts "\n#{request.to_s}\n" }
       it { puts "\n#{request.to_json_s}\n" }
     end
+
 
     describe 'HTTP Timeout too short to get response' do
 

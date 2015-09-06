@@ -15,6 +15,12 @@ module EbayTrader
 
   class Request
 
+    # A Struct wrapper around eBay generated error and warning messages.
+    Error = Struct.new(:error_classification, :severity_code, :error_code, :short_message, :long_message) do
+      def error?;   severity_code == 'Error';   end
+      def warning?; severity_code == 'Warning'; end
+    end
+
     # eBay Trading API XML Namespace
     XMLNS = 'urn:ebay:apis:eBLBaseComponents'
 
@@ -138,6 +144,15 @@ module EbayTrader
       @response_hash = parsed_hash[root_key]
       @response_hash.freeze
       @response_time = Time.now - time
+
+      @errors = []
+      deep_find(:errors, []).each do |error|
+        @errors << Error.new(error[:error_classification],
+                             error[:severity_code],
+                             error[:error_code],
+                             error[:short_message],
+                             error[:long_message])
+      end
     end
 
     # Determine if this request has been successful.
@@ -159,20 +174,40 @@ module EbayTrader
       deep_find(:ack, '').downcase.eql?('partialfailure')
     end
 
+    # Determine if this request has generated any {#errors} or {#warnings}.
+    # @return [Boolean] +true+ if errors or warnings present.
+    def has_errors_or_warnings?
+      has_errors? || has_warnings?
+    end
+
+    # Get an array of all {#errors} and {#warnings}.
+    # @return [Array[Error]] all {#errors} and {#warnings} combined.
+    def errors_and_warnings
+      @errors
+    end
+
+    # Determine if this request has generated any {#errors}, excluding {#warnings}.
+    # @return [Boolean] +true+ if any errors present.
     def has_errors?
       errors.count > 0
     end
 
+    # Get an array of {Error}s, excluding {#warnings}. This will be an empty array if there are no errors.
+    # @return [Array[Error]] which have a severity_code of 'Error'.
     def errors
-      deep_find(:errors, []).select { |error| error[:severity_code] =~ /Error/i }
+      @errors.select { |error| error.error? }
     end
 
+    # Determine if this request has generated any {#warnings}.
+    # @return [Boolean] +true+ if warnings present.
     def has_warnings?
       warnings.count > 0
     end
 
+    # Get an array of {Error}s representing warnings. This will be an empty array if there are no errors.
+    # @return [Array[Error]] which have a severity_code of 'Warning'.
     def warnings
-      deep_find(:errors, []).select { |error| error[:severity_code] =~ /Warning/i }
+      @errors.select { |error| error.warning? }
     end
 
     # Get the timestamp of the response returned by eBay API.
