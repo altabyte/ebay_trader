@@ -3,8 +3,8 @@
 **EbayTrader** is a lightweight easy to use Ruby gem for interacting with [eBay's Trading API](http://developer.ebay.com/DevZone/XML/docs/Reference/eBay/index.html).
 Leveraging Ruby's missing_method meta-programming DSL techniques, EbayTrader allows you to quickly and intuitively post XML requests
 to eBay and parses the response. The response data is available in the form of a Hash, actually a 
-[HashWithIndifferentAccess](http://api.rubyonrails.org/classes/ActiveSupport/HashWithIndifferentAccess.html) so keys +:key_name+ and "+key_name+" are treated equally,
-and values are auto-type-cast to +String+, +Fixnum+, +Float+, +Boolean+, +BigDecimal+ or optionally [Money](https://github.com/RubyMoney/money).
+[HashWithIndifferentAccess](http://api.rubyonrails.org/classes/ActiveSupport/HashWithIndifferentAccess.html) so keys `:key_name` and `"key_name"` are treated equally,
+and values are auto-type-cast to String, Fixnum, Float, Boolean, BigDecimal or [Money](https://github.com/RubyMoney/money).
 
 ## Simple example
 
