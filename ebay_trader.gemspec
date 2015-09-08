@@ -9,9 +9,9 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Rob Graham']
   spec.email         = ['rob@altabyte.com']
 
-  spec.summary       = %q{A DSL to interact with eBay's Trading API using Ruby}
+  spec.summary       = %q{A lightweight easy to use Ruby gem for interacting with eBay's Trading API.}
   spec.description   = <<-DESC
-    EbayTrader is a lightweight easy to use Ruby gem for interacting with eBay's Trading API.
+    A lightweight easy to use Ruby gem for interacting with eBay's Trading API.
     Using its simple DSL you can quickly and intuitively post XML requests to eBay and rapidly interpret the responses.
   DESC
   spec.homepage      = 'https://github.com/altabyte/ebay_trader'
