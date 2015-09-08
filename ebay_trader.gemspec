@@ -7,35 +7,27 @@ Gem::Specification.new do |spec|
   spec.name          = 'ebay-trader'
   spec.version       = EbayTrader::VERSION
   spec.authors       = ['Rob Graham']
-  spec.email         = ['altabyte@gmail.com']
+  spec.email         = ['rob@altabyte.com']
 
-  spec.summary       = %q{Interact with eBay's Trading API using Ruby}
+  spec.summary       = %q{A DSL to interact with eBay's Trading API using Ruby}
   spec.description   = <<-DESC
-    Using the magic of metaprogramming this gem allows you to construct eBay Trading API requests
-    with an intuitive DSL.
-    DESC
-  spec.homepage      = 'http://www.altabyte.com'
+    EbayTrader is a lightweight easy to use Ruby gem for interacting with eBay's Trading API.
+    Using its simple DSL you can quickly and intuitively post XML requests to eBay and rapidly interpret the responses.
+  DESC
+  spec.homepage      = 'https://github.com/altabyte/ebay_trader'
   spec.license       = 'MIT'
-
-  # Prevent pushing this gem to RubyGems.org by setting 'allowed_push_host', or
-  # delete this section to allow pushing this gem to any host.
-  if spec.respond_to?(:metadata)
-    spec.metadata['allowed_push_host'] = "TODO: Set to 'http://mygemserver.com'"
-  else
-    raise 'RubyGems 2.0 or newer is required to protect against public gem pushes.'
-  end
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   spec.bindir        = 'exe'
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  spec.add_development_dependency 'bundler', '~> 1.10'
-  spec.add_development_dependency 'rake', '~> 10.0'
+  spec.add_development_dependency 'bundler',    '~> 1.10'
+  spec.add_development_dependency 'rake',       '~> 10.0'
   spec.add_development_dependency 'rspec'
 
   spec.add_runtime_dependency 'activesupport',  '~> 4.0'
-  spec.add_runtime_dependency 'ox', '~> 2.2'
+  spec.add_runtime_dependency 'ox',             '~> 2.2'
 
   # Uncomment the following line to have monetary values cast to Money types...
   # spec.add_runtime_dependency 'money'
