@@ -101,7 +101,7 @@ module EbayTrader
       time = Time.now
       @call_name  = call_name.freeze
 
-      auth_token = %w"GetSessionID FetchToken GetTokenStatus RevokeToken".include?(call_name) ?
+      auth_token = %w"GetSessionID FetchToken".include?(call_name) ?
                       nil : (args[:auth_token] || EbayTrader.configuration.auth_token)
       @auth_token = auth_token.freeze
 
