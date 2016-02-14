@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'cgi'
 require 'ebay_trader/request'
 
@@ -45,7 +47,8 @@ module EbayTrader
     # @return [String] the sign-in URL.
     #
     def sign_in_url(ruparams = {})
-      url = EbayTrader.configuration.production? ? 'https://signin.ebay.com' : 'https://signin.sandbox.ebay.com'
+      url = []
+      url << EbayTrader.configuration.production? ? 'https://signin.ebay.com' : 'https://signin.sandbox.ebay.com'
       url << '/ws/eBayISAPI.dll?SignIn'
       url << "&runame=#{url_encode ru_name}"
       url << "&SessID=#{url_encode id}"
@@ -54,7 +57,7 @@ module EbayTrader
         ruparams.each_pair { |key, value| params << "#{key}=#{value}" }
         url << "&ruparams=#{url_encode(params.join('&'))}"
       end
-      url
+      url.join
     end
 
     #---------------------------------------------------------------

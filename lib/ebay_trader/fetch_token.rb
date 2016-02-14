@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'active_support/time'
 require 'ebay_trader/request'
 require 'ebay_trader/session_id'

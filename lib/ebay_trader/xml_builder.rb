@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module EbayTrader
   class XMLBuilder
 
@@ -25,7 +27,7 @@ module EbayTrader
     end
 
     # Begin creating an XML string by specifying the root node.
-    # This also set the context scope, allowing methods and variable
+    # This also sets the context scope, allowing methods and variables
     # outside the block to be accessed.
     # @param [String] name the name of the root node element.
     # @param [Array]  args the data for this element.
@@ -53,15 +55,16 @@ module EbayTrader
       content = get_node_content(args)
       options = format_node_attributes(get_node_attributes(args))
 
-      @xml << "#{indent_new_line}<#{name}#{options}>#{content}"
+      @_segments ||= []
+      @_segments << "#{indent_new_line}<#{name}#{options}>#{content}"
       if block_given?
         @depth += 1
         instance_eval(&block)
         @depth -= 1
-        @xml << indent_new_line
+        @_segments << indent_new_line
       end
-      @xml << "</#{name}>"
-      @xml.strip
+      @_segments << "</#{name}>"
+      @xml = @_segments.join('').strip
     end
 
     # Return the first Hash in the list of arguments to #node

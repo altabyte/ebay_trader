@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'active_support/gzip'
 require 'net/http'
 require 'ox'
@@ -123,8 +125,7 @@ module EbayTrader
         @message_id = (args[:message_id] == true) ? SecureRandom.uuid : args[:message_id].to_s
       end
 
-      @xml_request = '<?xml version="1.0" encoding="utf-8"?>' << "\n"
-      @xml_request << XMLBuilder.new(tab_width: xml_tab_width).root("#{call_name}Request", xmlns: XMLNS) do
+      doc = XMLBuilder.new(tab_width: xml_tab_width).root("#{call_name}Request", xmlns: XMLNS) do
         unless auth_token.blank?
           RequesterCredentials do
             eBayAuthToken auth_token.to_s
@@ -133,6 +134,7 @@ module EbayTrader
         instance_eval(&block) if block_given?
         MessageID message_id unless message_id.nil?
       end
+      @xml_request = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n#{doc}"
 
       @http_response_code = 200
       submit if xml_response.blank?

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Tests performed on locally cached XML response files.
 
 require 'ebay_trader/request'

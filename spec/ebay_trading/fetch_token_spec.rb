@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'ebay_trader/fetch_token'
 require 'ebay_trader/session_id'
 
